@@ -53,6 +53,10 @@ jobs:
         with:
           terraform_version: latest
 
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
       - name: Terraform Validate
         id: validate
         run: terraform validate
