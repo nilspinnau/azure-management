@@ -97,30 +97,22 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       lint_status: ${{ steps.lint.outcome }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get TFLint Config
-        uses: terraform-linters/tflint-load-config-action@v2
-        with:
-          source-repo: ${{ github.repository }}
-          source-path: .tflint.hcl
-          source-ref: ${{ github.ref }}
+      # we have the tflint file in this repo
+      # - name: Get Config TFLint
+      #   uses: terraform-linters/tflint-load-config-action@v1
+      #   with:
+      #     source-repo: ${{ github.repository }}
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
 
       - name: Run TFLint
-        uses: reviewdog/action-tflint@v1
         id: lint
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          tflint_version: latest
-          reporter: github-pr-check
-          fail_on_error: true
-          filter_mode: nofilter
-          level: error
-          flags: ""
-          tflint_init: true
+        run: tflint --format compact
 
   workflow-summary:
     needs:
