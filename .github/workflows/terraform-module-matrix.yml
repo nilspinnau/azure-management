@@ -58,9 +58,6 @@ jobs:
         run: terraform validate
 
   terraform-docs:
-    needs:
-      - terraform-fmt
-    if: ${{ needs.terraform-fmt.outputs.diff_exists == 'false' }}
     runs-on: ubuntu-latest
     outputs:
       docs_status: ${{ steps.docs.outcome }}
@@ -95,10 +92,6 @@ jobs:
           git-commit-message: "docs(terraform-docs): update readme"
 
   terraform-lint:
-    needs: 
-      - terraform-fmt
-      - terraform-docs
-    if: ${{ needs.terraform-fmt.outputs.diff_exists == 'false' && needs.terraform-docs.outputs.diff_exists == 'false' }}
     runs-on: ubuntu-latest
     outputs:
       lint_status: ${{ steps.lint.outcome }}
