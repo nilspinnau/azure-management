@@ -91,8 +91,6 @@ jobs:
           output-method: inject
           args: --sort-by required
           git-push: true
-          git-push-user-name: test
-          git-push-user-email: noreply@github.com
           git-commit-message: "docs(terraform-docs): update readme"
 
   terraform-lint:
