@@ -6,11 +6,13 @@ variable "location" {
 
 variable "resource_group_name" {
   type     = string
+  default  = ""
   nullable = false
 }
 
 variable "resource_suffix" {
-  type = list(string)
+  type    = list(string)
+  default = []
 }
 
 
@@ -45,16 +47,16 @@ variable "bcdr" {
   type = object({
     enabled = optional(bool, false)
     config = optional(object({
-      cross_region_restore_enabled = optional(bool, true)
-      replication_type             = optional(string, "GeoRedundant")
-      subnet_ids                   = optional(list(string))
+      cross_region_restore_enabled  = optional(bool, true)
+      public_network_access_enabled = optional(bool, false)
+      replication_type              = optional(string, "GeoRedundant")
       diagnostic_settings = optional(object({
         enabled      = optional(bool, false)
         enabled_log  = optional(map(string))
         metric       = optional(map(string))
         workspace_id = optional(string, "")
       }))
-      private_endpoints = map(object({
+      private_endpoints = optional(map(object({
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
         subnet_resource_id                      = string
@@ -69,7 +71,7 @@ variable "bcdr" {
           name               = string
           private_ip_address = string
         })), {})
-      }))
+      })))
     }))
   })
   validation {
@@ -95,7 +97,7 @@ variable "key_vault" {
         ip_rules                   = optional(list(string), [])
         virtual_network_subnet_ids = optional(list(string), [])
       }), {})
-      private_endpoints = map(object({
+      private_endpoints = optional(map(object({
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
         subnet_resource_id                      = string
@@ -110,7 +112,7 @@ variable "key_vault" {
           name               = string
           private_ip_address = string
         })), {})
-      }))
+      })))
     }))
   })
   default  = {}
@@ -144,7 +146,7 @@ variable "container_registry" {
         enabled      = optional(bool, false)
         workspace_id = optional(string, "")
       }))
-      private_endpoints = map(object({
+      private_endpoints = optional(map(object({
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
         subnet_resource_id                      = string
@@ -159,7 +161,7 @@ variable "container_registry" {
           name               = string
           private_ip_address = string
         })), {})
-      }))
+      })))
     }))
   })
   default  = {}

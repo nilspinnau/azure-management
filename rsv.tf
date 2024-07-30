@@ -10,7 +10,7 @@ resource "azurerm_recovery_services_vault" "rsv" {
   cross_region_restore_enabled = var.bcdr.config.replication_type == "GeoRedundant" ? var.bcdr.config.cross_region_restore_enabled : false
   storage_mode_type            = var.bcdr.config.replication_type
 
-  soft_delete_enabled = true # deactivate soft delete for dev environment
+  soft_delete_enabled = false # deactivate soft delete for dev environment
 
   identity {
     type = "SystemAssigned"
@@ -18,9 +18,10 @@ resource "azurerm_recovery_services_vault" "rsv" {
 
   monitoring {
     alerts_for_critical_operation_failures_enabled = true
+    alerts_for_all_job_failures_enabled            = false
   }
 
-  public_network_access_enabled = true
+  public_network_access_enabled = var.bcdr.config.public_network_access_enabled
 
   tags = var.tags
 }
