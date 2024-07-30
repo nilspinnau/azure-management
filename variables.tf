@@ -7,13 +7,11 @@ variable "location" {
 variable "resource_group_name" {
   type     = string
   nullable = false
-  default  = ""
 }
 
 variable "resource_group_id" {
   type     = string
   nullable = false
-  default  = ""
 }
 
 variable "resource_suffix" {
@@ -27,6 +25,25 @@ variable "tags" {
   description = "Tags to set on the resources."
 }
 
+variable "shared_image_gallery" {
+  type = object({
+    enabled = optional(bool, false)
+    config = optional(object({
+      sharing = optional(object({
+        permission = optional(string, "Private")
+        community_gallery = optional(object({
+          eula            = string
+          prefix          = string
+          publisher_email = string
+          publisher_uri   = string
+        }))
+      }))
+      description = optional(string, "")
+      tags        = optional(map(string))
+    }))
+  })
+}
+
 variable "bcdr" {
   type = object({
     enabled = optional(bool, false)
@@ -34,15 +51,35 @@ variable "bcdr" {
       cross_region_restore_enabled = optional(bool, true)
       replication_type             = optional(string, "GeoRedundant")
       subnet_ids                   = optional(list(string))
+      diagnostic_settings = optional(object({
+        enabled      = optional(bool, false)
+        enabled_log  = optional(map(string))
+        metric       = optional(map(string))
+        workspace_id = optional(string, "")
+      }))
+      private_endpoints = map(object({
+        name                                    = optional(string, null)
+        tags                                    = optional(map(string), null)
+        subnet_resource_id                      = string
+        private_dns_zone_group_name             = optional(string, "default")
+        private_dns_zone_resource_ids           = optional(set(string), [])
+        application_security_group_associations = optional(map(string), {})
+        private_service_connection_name         = optional(string, null)
+        network_interface_name                  = optional(string, null)
+        location                                = optional(string, null)
+        resource_group_name                     = optional(string, null)
+        ip_configurations = optional(map(object({
+          name               = string
+          private_ip_address = string
+        })), {})
+      }))
     }))
   })
   validation {
     condition     = anytrue([var.bcdr.enabled == false, try(contains(["LocallyRedundant", "ZoneRedundant", "GeoRedundant"], var.bcdr.config.replication_type), false)])
     error_message = "Choose between: 'LocallyRedundant', 'ZoneRedundant', 'GeoRedundant'"
   }
-  default = {
-    enabled = false
-  }
+  default = {}
 }
 
 variable "key_vault" {
@@ -50,6 +87,10 @@ variable "key_vault" {
     enabled = optional(bool, false)
     config = optional(object({
       public_network_access_enabled = optional(bool, false)
+      diagnostic_settings = optional(object({
+        enabled      = optional(bool, false)
+        workspace_id = optional(string, "")
+      }))
       network_acls = optional(object({
         bypass                     = optional(string, "None")
         default_action             = optional(string, "Deny")
@@ -74,80 +115,24 @@ variable "key_vault" {
       }))
     }))
   })
-  default = {
-    enabled = false
-  }
-}
-
-variable "automanage" {
-  type = object({
-    enabled = optional(bool, false)
-    config = optional(object({
-      name                           = string
-      custom_log_analytics_workspace = optional(bool, true)
-      enable_antimalware             = optional(bool, true)
-      enable_baseline_security       = optional(bool, true)
-      assignment_type                = optional(string, "ApplyAndMonitor") # "Audit", "ApplyAndAutoCorrect"
-      enable_backup                  = optional(bool, false)
-      enable_boot_diagnostics        = optional(bool, true)
-      enable_change_tracking         = optional(bool, true)
-      enable_defender                = optional(bool, true)
-      enable_log_analytics           = optional(bool, true)
-      enable_updatemanagement        = optional(bool, true)
-      enable_vminsights              = optional(bool, true)
-      enable_admin_center            = optional(bool, true)
-      }), {
-      name                           = "custom"
-      custom_log_analytics_workspace = true
-      enable_antimalware             = true
-      enable_baseline_security       = true
-      assignment_type                = "ApplyAndMonitor"
-      enable_backup                  = false
-      enable_boot_diagnostics        = true
-      enable_change_tracking         = true
-      enable_defender                = true
-      enable_log_analytics           = true
-      enable_updatemanagement        = true
-      enable_vminsights              = true
-      enable_admin_center            = true
-    })
-  })
-  default = {
-    enabled = false
-  }
+  default  = {}
+  nullable = false
 }
 
 variable "monitoring" {
   type = object({
-    enabled = optional(bool, true)
+    enabled = optional(bool, false)
     config = optional(object({
-      private_endpoints = map(object({
-        name                                    = optional(string, null)
-        tags                                    = optional(map(string), null)
-        subnet_resource_id                      = string
-        private_dns_zone_group_name             = optional(string, "default")
-        private_dns_zone_resource_ids           = optional(set(string), [])
-        application_security_group_associations = optional(map(string), {})
-        private_service_connection_name         = optional(string, null)
-        network_interface_name                  = optional(string, null)
-        location                                = optional(string, null)
-        resource_group_name                     = optional(string, null)
-        ip_configurations = optional(map(object({
-          name               = string
-          private_ip_address = string
-        })), {})
-      }))
+
     }))
   })
-  default = {
-    enabled = true
-  }
+  default  = {}
   nullable = false
 }
 
 variable "container_registry" {
   type = object({
-    enabled = optional(bool, true)
+    enabled = optional(bool, false)
     config = optional(object({
       sku                           = optional(string, "Basic")
       public_network_access_enabled = optional(bool, false)
@@ -157,6 +142,10 @@ variable "container_registry" {
         tags                      = optional(map(any), {})
         zone_redundancy_enabled   = optional(bool, true)
       }))
+      diagnostic_settings = optional(object({
+        enabled      = optional(bool, false)
+        workspace_id = optional(string, "")
+      }))
       private_endpoints = map(object({
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
@@ -175,9 +164,7 @@ variable "container_registry" {
       }))
     }))
   })
-  default = {
-    enabled = false
-  }
+  default  = {}
   nullable = false
 }
 
@@ -191,8 +178,15 @@ variable "dns" {
           vnetid           = string
           vnetlinkname     = string
           autoregistration = optional(bool, false)
+          tags             = map(any)
         }))
+      }))
+      diagnostic_settings = optional(object({
+        enabled      = optional(bool, false)
+        workspace_id = optional(string, "")
       }))
     }))
   })
+  default  = {}
+  nullable = false
 }

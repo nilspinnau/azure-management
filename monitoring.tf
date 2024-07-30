@@ -1,6 +1,6 @@
 
 resource "azurerm_log_analytics_workspace" "default" {
-  count = var.monitoring.enabled == true || try(var.automanage.config.custom_log_analytics_workspace, false) ? 1 : 0
+  count = var.monitoring.enabled == true ? 1 : 0
 
   name                = module.naming.log_analytics_workspace.unqiue_name
   resource_group_name = var.resource_group_name

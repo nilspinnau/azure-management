@@ -25,7 +25,7 @@ resource "azurerm_recovery_services_vault" "rsv" {
   tags = var.tags
 }
 
-
+# This is for Azure Disk Encryption
 data "azuread_service_principal" "backup_mgmt_serv" {
   count = var.key_vault.enabled == true && var.bcdr.enabled == true ? 1 : 0
 
@@ -41,19 +41,23 @@ resource "azurerm_role_assignment" "rsv_keyvault" {
 
 
 data "azurerm_monitor_diagnostic_categories" "rsv" {
-  count = var.monitoring.enabled == true && var.bcdr.enabled == true ? 1 : 0
+  count = var.bcdr.enabled == true && var.bcdr.config.diagnostic_settings.enabled == true && local.bcdr_diagnostics_workspace_id != null ? 1 : 0
 
   resource_id = azurerm_recovery_services_vault.rsv.0.id
 }
 
 
-resource "azurerm_monitor_diagnostic_setting" "rsv" {
-  count = var.monitoring.enabled == true && var.bcdr.enabled == true ? 1 : 0
+locals {
+  bcdr_diagnostics_workspace_id = try(coalesce(var.bcdr.config.diagnostic_settings.workspace_id, try(azurerm_log_analytics_workspace.default.0.id, null)), null)
+}
 
-  name                           = "mon-"
+resource "azurerm_monitor_diagnostic_setting" "rsv" {
+  count = var.bcdr.enabled == true && var.bcdr.config.diagnostic_settings.enabled == true && local.bcdr_diagnostics_workspace_id != null ? 1 : 0
+
+  name                           = "mondiag-${basename(local.bcdr_diagnostics_workspace_id)}"
   target_resource_id             = azurerm_recovery_services_vault.rsv.0.id
   log_analytics_destination_type = "Dedicated"
-  log_analytics_workspace_id     = azurerm_log_analytics_workspace.default.0.id
+  log_analytics_workspace_id     = local.bcdr_diagnostics_workspace_id
 
   dynamic "enabled_log" {
     for_each = data.azurerm_monitor_diagnostic_categories.rsv.0.log_category_types
@@ -66,6 +70,43 @@ resource "azurerm_monitor_diagnostic_setting" "rsv" {
     for_each = data.azurerm_monitor_diagnostic_categories.rsv.0.metrics
     content {
       category = metric.value
+    }
+  }
+}
+
+## private endpoint
+resource "azurerm_private_endpoint" "this" {
+  count = var.bcdr.enabled == true ? length(var.bcdr.config.private_endpoints * 2) : 0
+
+  location                      = coalesce(var.bcdr.config.private_endpoints[floor(count.index / 2)].location, var.location)
+  name                          = var.bcdr.config.private_endpoints[floor(count.index / 2)].name != null ? var.bcdr.config.private_endpoints[floor(count.index / 2)].name : "pe-${azurerm_recovery_services_vault.rsv.0.name}"
+  resource_group_name           = var.bcdr.config.private_endpoints[floor(count.index / 2)].resource_group_name != null ? var.bcdr.config.private_endpoints[floor(count.index / 2)].resource_group_name : var.resource_group_name
+  subnet_id                     = var.bcdr.config.private_endpoints[floor(count.index / 2)].subnet_resource_id
+  custom_network_interface_name = var.bcdr.config.private_endpoints[floor(count.index / 2)].network_interface_name
+  tags                          = var.bcdr.config.private_endpoints[floor(count.index / 2)].tags
+
+  private_service_connection {
+    is_manual_connection           = false
+    name                           = var.bcdr.config.private_endpoints[floor(count.index / 2)].private_service_connection_name != null ? var.bcdr.config.private_endpoints[floor(count.index / 2)].private_service_connection_name : "pse-${azurerm_recovery_services_vault.rsv.0.name}"
+    private_connection_resource_id = azurerm_recovery_services_vault.rsv.0.id
+    subresource_names              = ["AzureSiteRecovery", "AzureBackup"]
+  }
+  dynamic "ip_configuration" {
+    for_each = var.bcdr.config.private_endpoints[floor(count.index / 2)].ip_configurations
+
+    content {
+      name               = ip_configuration.value.name
+      private_ip_address = ip_configuration.value.private_ip_address
+      member_name        = "rsv"
+      subresource_name   = "rsv"
+    }
+  }
+  dynamic "private_dns_zone_group" {
+    for_each = length(var.bcdr.config.private_endpoints[floor(count.index / 2)].private_dns_zone_resource_ids) > 0 ? ["this"] : []
+
+    content {
+      name                 = var.bcdr.config.private_endpoints[floor(count.index / 2)].private_dns_zone_group_name
+      private_dns_zone_ids = var.bcdr.config.private_endpoints[floor(count.index / 2)].private_dns_zone_resource_ids
     }
   }
 }
