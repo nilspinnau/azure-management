@@ -9,11 +9,6 @@ variable "resource_group_name" {
   nullable = false
 }
 
-variable "resource_group_id" {
-  type     = string
-  nullable = false
-}
-
 variable "resource_suffix" {
   type = list(string)
 }
