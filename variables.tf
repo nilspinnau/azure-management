@@ -37,6 +37,8 @@ variable "shared_image_gallery" {
       tags        = optional(map(string))
     }))
   })
+  default  = {}
+  nullable = false
 }
 
 variable "bcdr" {
@@ -74,7 +76,8 @@ variable "bcdr" {
     condition     = anytrue([var.bcdr.enabled == false, try(contains(["LocallyRedundant", "ZoneRedundant", "GeoRedundant"], var.bcdr.config.replication_type), false)])
     error_message = "Choose between: 'LocallyRedundant', 'ZoneRedundant', 'GeoRedundant'"
   }
-  default = {}
+  default  = {}
+  nullable = false
 }
 
 variable "key_vault" {
