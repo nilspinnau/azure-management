@@ -37,7 +37,7 @@ variable "shared_image_gallery" {
       }))
       description = optional(string, "")
       tags        = optional(map(string))
-    }))
+    }), {})
   })
   default  = {}
   nullable = false
@@ -71,8 +71,8 @@ variable "bcdr" {
           name               = string
           private_ip_address = string
         })), {})
-      })))
-    }))
+      })), {})
+    }), {})
   })
   validation {
     condition     = anytrue([var.bcdr.enabled == false, try(contains(["LocallyRedundant", "ZoneRedundant", "GeoRedundant"], var.bcdr.config.replication_type), false)])
@@ -113,7 +113,7 @@ variable "key_vault" {
           private_ip_address = string
         })), {})
       })))
-    }))
+    }), {})
   })
   default  = {}
   nullable = false
@@ -136,16 +136,16 @@ variable "container_registry" {
     config = optional(object({
       sku                           = optional(string, "Basic")
       public_network_access_enabled = optional(bool, false)
-      georeplications = list(object({
+      georeplications = optional(list(object({
         location                  = string
         regional_endpoint_enabled = optional(bool, false)
         tags                      = optional(map(any), {})
         zone_redundancy_enabled   = optional(bool, true)
-      }))
+      })), [])
       diagnostic_settings = optional(object({
         enabled      = optional(bool, false)
         workspace_id = optional(string, "")
-      }))
+      }), {})
       private_endpoints = optional(map(object({
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
@@ -162,7 +162,7 @@ variable "container_registry" {
           private_ip_address = string
         })), {})
       })))
-    }))
+    }), {})
   })
   default  = {}
   nullable = false
