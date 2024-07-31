@@ -1,7 +1,7 @@
 resource "azurerm_recovery_services_vault" "rsv" {
   count = var.bcdr.enabled == true ? 1 : 0
 
-  name                = module.naming.recovery_services_vault.unique_name
+  name                = module.naming.recovery_services_vault.name
   resource_group_name = local.resource_group_name
   location            = var.location
 
@@ -117,7 +117,7 @@ resource "azurerm_private_endpoint" "this" {
 resource "azurerm_storage_account" "staging" {
   count = var.bcdr.enabled == true ? 1 : 0
 
-  name                = "${module.naming.storage_account.unique_name}stg"
+  name                = "${module.naming.storage_account.name_unique}stg"
   location            = var.location
   resource_group_name = local.resource_group_name
 

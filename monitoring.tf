@@ -18,7 +18,7 @@ resource "azurerm_log_analytics_workspace" "default" {
 resource "azurerm_storage_account" "monitoring" {
   count = var.monitoring.enabled == true ? 1 : 0
 
-  name                = module.naming.storage_account.unique_name
+  name                = module.naming.storage_account.name_unique
   location            = var.location
   resource_group_name = local.resource_group_name
 
