@@ -3,12 +3,14 @@ data "azurerm_client_config" "current" {
 }
 
 module "keyvault" {
+  count = var.key_vault.enabled == true ? 1 : 0
+
   source  = "Azure/avm-res-keyvault-vault/azurerm"
   version = "0.7.1"
 
   name                = module.naming.key_vault.name
   location            = var.location
-  resource_group_name = local.resource_group_name
+  resource_group_name = var.resource_group_name
 
   enable_telemetry = false
   tenant_id        = data.azurerm_client_config.current.tenant_id

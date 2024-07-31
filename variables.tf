@@ -6,7 +6,6 @@ variable "location" {
 
 variable "resource_group_name" {
   type     = string
-  default  = ""
   nullable = false
 }
 
@@ -34,7 +33,7 @@ variable "shared_image_gallery" {
           publisher_email = string
           publisher_uri   = string
         }))
-      }))
+      }), {})
       description = optional(string, "")
       tags        = optional(map(string))
     }), {})
@@ -55,7 +54,7 @@ variable "bcdr" {
         enabled_log  = optional(map(string))
         metric       = optional(map(string))
         workspace_id = optional(string, "")
-      }))
+      }), {})
       private_endpoints = optional(map(object({
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)

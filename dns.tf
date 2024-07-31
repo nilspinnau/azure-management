@@ -9,7 +9,7 @@ module "dns" {
   domain_name           = each.value.name
   virtual_network_links = each.value.virtual_network_links
 
-  resource_group_name = local.resource_group_name
+  resource_group_name = var.resource_group_name
 
   tags = var.tags
 }

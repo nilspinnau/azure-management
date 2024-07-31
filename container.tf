@@ -7,7 +7,7 @@ module "container_registry" {
 
   name                = module.naming.container_registry.name
   location            = var.location
-  resource_group_name = local.resource_group_name
+  resource_group_name = var.resource_group_name
 
   sku             = var.container_registry.config.sku
   georeplications = var.container_registry.config.georeplications
