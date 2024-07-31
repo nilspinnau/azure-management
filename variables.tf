@@ -185,7 +185,9 @@ variable "dns" {
         enabled      = optional(bool, false)
         workspace_id = optional(string, "")
       }))
-    }))
+      }), {
+      zones = []
+    })
   })
   default  = {}
   nullable = false

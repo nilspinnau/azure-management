@@ -2,7 +2,7 @@ resource "azurerm_recovery_services_vault" "rsv" {
   count = var.bcdr.enabled == true ? 1 : 0
 
   name                = module.naming.recovery_services_vault.unique_name
-  resource_group_name = var.resource_group_name
+  resource_group_name = local.resource_group_name
   location            = var.location
 
   sku = "Standard" #"RS0" for LRS
@@ -81,7 +81,7 @@ resource "azurerm_private_endpoint" "this" {
 
   location                      = coalesce(var.bcdr.config.private_endpoints[floor(count.index / 2)].location, var.location)
   name                          = var.bcdr.config.private_endpoints[floor(count.index / 2)].name != null ? var.bcdr.config.private_endpoints[floor(count.index / 2)].name : "pe-${azurerm_recovery_services_vault.rsv.0.name}"
-  resource_group_name           = var.bcdr.config.private_endpoints[floor(count.index / 2)].resource_group_name != null ? var.bcdr.config.private_endpoints[floor(count.index / 2)].resource_group_name : var.resource_group_name
+  resource_group_name           = var.bcdr.config.private_endpoints[floor(count.index / 2)].resource_group_name != null ? var.bcdr.config.private_endpoints[floor(count.index / 2)].resource_group_name : local.resource_group_name
   subnet_id                     = var.bcdr.config.private_endpoints[floor(count.index / 2)].subnet_resource_id
   custom_network_interface_name = var.bcdr.config.private_endpoints[floor(count.index / 2)].network_interface_name
   tags                          = var.bcdr.config.private_endpoints[floor(count.index / 2)].tags
@@ -119,7 +119,7 @@ resource "azurerm_storage_account" "staging" {
 
   name                = "${module.naming.storage_account.unique_name}stg"
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = local.resource_group_name
 
   account_kind = "StorageV2"
   account_tier = "Standard"
