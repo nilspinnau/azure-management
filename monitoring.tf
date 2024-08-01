@@ -43,7 +43,7 @@ resource "azurerm_storage_account" "monitoring" {
   network_rules {
     bypass                     = ["AzureServices"]
     default_action             = "Deny"
-    virtual_network_subnet_ids = try(var.bcdr.config.subnet_ids, [])
+    virtual_network_subnet_ids = []
     ip_rules                   = []
   }
 

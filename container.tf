@@ -19,7 +19,7 @@ module "container_registry" {
 
   public_network_access_enabled = var.container_registry.config.public_network_access_enabled
 
-  diagnostic_settings = var.monitoring.enabled == true ? {
-    workspace_resource_id = azurerm_log_analytics_workspace.default.0.id
+  diagnostic_settings = var.container_registry.config.diagnostic_settings.enabled == true ? {
+    workspace_resource_id = try(coalesce(var.container_registry.config.diagnostic_settings.workspace_id, try(azurerm_log_analytics_workspace.default.0.id, null)), null)
   } : null
 }

@@ -1,14 +1,28 @@
 
 
 output "recovery_services_vault" {
-  value = var.bcdr.enabled == true ? {
-    resource_id = azurerm_recovery_services_vault.rsv.0.id
+  value = var.recovery_vault.enabled == true ? {
+    resource_id         = azurerm_recovery_services_vault.default.0.id
+    vault_name          = azurerm_recovery_services_vault.default.0.name
+    resource_group_name = azurerm_recovery_services_vault.default.0.resource_group_name
+    principal_id        = azurerm_recovery_services_vault.default.0.identity.0.principal_id
+    policy_ids          = { for policy in azurerm_backup_policy_vm.default : policy.name => policy.id }
     storage_account = {
       resource_id = azurerm_storage_account.staging.0.id
     }
   } : null
 }
 
+
+output "backup_services_vault" {
+  value = var.backup_vault.enabled == true ? {
+    resource_id         = azurerm_data_protection_backup_vault.default.0.id
+    vault_name          = azurerm_data_protection_backup_vault.default.0.name
+    resource_group_name = azurerm_data_protection_backup_vault.default.0.resource_group_name
+    principal_id        = azurerm_data_protection_backup_vault.default.0.identity.0.principal_id
+    policy_ids          = { for policy in azurerm_data_protection_backup_policy_disk.default : policy.name => policy.id }
+  } : null
+}
 
 output "key_vault" {
   value = try(module.keyvault.0, null)

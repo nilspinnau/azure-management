@@ -18,9 +18,16 @@ module "keyvault" {
   public_network_access_enabled = var.key_vault.config.public_network_access_enabled
   network_acls                  = var.key_vault.config.network_acls
 
+  enabled_for_disk_encryption     = var.key_vault.config.enabled_for_disk_encryption
+  enabled_for_deployment          = var.key_vault.config.enabled_for_deployment
+  enabled_for_template_deployment = var.key_vault.config.enabled_for_template_deployment
+
+  sku_name = var.key_vault.config.sku_name
+
   private_endpoints = var.key_vault.config.private_endpoints
 
-  diagnostic_settings = var.monitoring.enabled == true ? {
-    workspace_resource_id = azurerm_log_analytics_workspace.default.0.id
+  diagnostic_settings = var.key_vault.config.diagnostic_settings.enabled == true ? {
+    workspace_resource_id = try(coalesce(var.key_vault.config.diagnostic_settings.workspace_id, try(azurerm_log_analytics_workspace.default.0.id, null)), null)
   } : null
 }
+
