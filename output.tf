@@ -54,6 +54,9 @@ output "monitoring" {
     }
     storage_account = {
       resource_id = azurerm_storage_account.monitoring.0.id
+      name        = azurerm_storage_account.monitoring.0.name
+      key         = azurerm_storage_account.monitoring.0.primary_access_key
     }
   } : null
+  sensitive = true
 }
