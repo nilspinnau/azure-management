@@ -181,7 +181,7 @@ variable "key_vault" {
       diagnostic_settings = optional(object({
         enabled      = optional(bool, false)
         workspace_id = optional(string, "")
-      }))
+      }), {})
       network_acls = optional(object({
         bypass                     = optional(string, "None")
         default_action             = optional(string, "Deny")
@@ -275,7 +275,7 @@ variable "dns" {
       diagnostic_settings = optional(object({
         enabled      = optional(bool, false)
         workspace_id = optional(string, "")
-      }))
+      }), {})
       }), {
       zones = []
     })
