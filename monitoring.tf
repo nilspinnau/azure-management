@@ -33,7 +33,7 @@ resource "azurerm_storage_account" "monitoring" {
 
   shared_access_key_enabled = true # IaaSDiagnostics uses key access
 
-  enable_https_traffic_only         = true
+  https_traffic_only_enabled = true
   infrastructure_encryption_enabled = true
 
   min_tls_version = "TLS1_2"

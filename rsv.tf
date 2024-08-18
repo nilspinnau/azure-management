@@ -93,19 +93,6 @@ resource "azurerm_backup_policy_vm" "default" {
 
 
 
-
-################
-# Recovery Policies
-
-
-
-
-
-
-
-
-
-
 ############
 # Key vault Disk Encryption
 
@@ -122,7 +109,6 @@ resource "azurerm_role_assignment" "rsv_keyvault" {
   role_definition_name = "Key Vault Secrets Officer"
   principal_id         = data.azuread_service_principal.backup_mgmt_serv.0.object_id
 }
-
 
 
 ##### 
@@ -226,17 +212,20 @@ resource "azurerm_storage_account" "staging" {
     expiration_action = "Log"
   }
 
-  enable_https_traffic_only         = true
+  https_traffic_only_enabled         = true
   infrastructure_encryption_enabled = true
 
   min_tls_version = "TLS1_2"
 
-  public_network_access_enabled = false
-  network_rules {
-    bypass                     = ["AzureServices", "Metrics", "Logging"]
-    default_action             = "Deny"
-    virtual_network_subnet_ids = try(var.recovery_vault.config.private_endpoints.subnet_resource_ids, [])
-    ip_rules                   = []
+  public_network_access_enabled = var.recovery_vault.config.storage_account.public_network_access_enabled
+  dynamic "network_rules" {
+    for_each = var.recovery_vault.config.storage_account.network_rules != null ? { this = var.recovery_vault.config.storage_account.network_rules } : {}
+    content {
+      bypass                     = network_rules.value.bypass
+      default_action             = network_rules.value.default_action
+      ip_rules                   = network_rules.value.ip_rules
+      virtual_network_subnet_ids = network_rules.value.virtual_network_subnet_ids
+    }
   }
 
   tags = var.tags

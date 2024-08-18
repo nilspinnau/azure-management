@@ -100,7 +100,7 @@ variable "recovery_vault" {
     config = optional(object({
       policies = optional(list(object({
         resource_group = optional(object({
-          suffix = optional(string, "")
+          suffix = optional(string, null)
           prefix = string
         }))
         name                           = string
@@ -131,6 +131,15 @@ variable "recovery_vault" {
           months   = set(string)
         }))
       })), [])
+      storage_account = optional(object({
+        network_rules = optional(object({
+          bypass                     = optional(list(string), [])
+          default_action             = optional(string, "Deny")
+          ip_rules                   = optional(list(string), [])
+          virtual_network_subnet_ids = optional(list(string), [])
+        }), null)
+        public_network_access_enabled = optional(bool, true)
+      }), {})
       cross_region_restore_enabled  = optional(bool, true)
       public_network_access_enabled = optional(bool, false)
       storage_mode_type             = optional(string, "GeoRedundant")
@@ -178,6 +187,7 @@ variable "key_vault" {
       enabled_for_disk_encryption     = optional(bool, true)
       enabled_for_deployment          = optional(bool, false)
       enabled_for_template_deployment = optional(bool, false)
+      disk_encryption_set_enabled = optional(bool, true)
       diagnostic_settings = optional(object({
         enabled      = optional(bool, false)
         workspace_id = optional(string, "")
