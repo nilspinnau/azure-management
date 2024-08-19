@@ -37,6 +37,14 @@ output "image_registry" {
 }
 
 
+output "disk_encryption_set" {
+  value = var.key_vault.enabled == true && var.key_vault.config.disk_encryption_set_enabled == true ? {
+    resource_id = azurerm_disk_encryption_set.default.0.id
+    name        = azurerm_disk_encryption_set.default.0.name
+  } : null
+}
+
+
 output "dns" {
   value = { for dns in module.dns : dns.name => dns }
 }

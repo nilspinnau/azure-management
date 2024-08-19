@@ -34,32 +34,33 @@ module "keyvault" {
 }
 
 locals {
-  keys = var.key_vault.config.disk_encryption_set_enabled == true ? merge(var.key_vault.config.keys, { "cmk-disk-encryption-set" = {
-    key_opts = [
+  keys = merge(var.key_vault.config.keys, var.key_vault.config.disk_encryption_set_enabled == true ? { "cmk-disk-encryption-set" = {
+    key_opts = tolist([
       "decrypt",
       "encrypt",
       "sign",
       "unwrapKey",
       "verify",
       "wrapKey",
-    ]
-    key_size = "2048"
+    ])
+    key_size = 2048
     key_type = "RSA"
-    name = "cmk-disk-encryption-set"
-    role_assignments = []
-  }}) : var.key_vault.config.keys
+    name     = "cmk-disk-encryption-set"
+  } } : null)
 }
 
 resource "azurerm_disk_encryption_set" "default" {
   count = var.key_vault.enabled == true && var.key_vault.config.disk_encryption_set_enabled == true ? 1 : 0
 
-  name = module.naming.disk_encryption_set.name
+  name                = module.naming.disk_encryption_set.name
   resource_group_name = var.resource_group_name
-  location = var.location
+  location            = var.location
 
-  
-  key_vault_key_id = module.keyvault.0.keys_resource_ids["cmk-disk-encryption-set"].versionless_id
+
+  key_vault_key_id          = module.keyvault.0.keys_resource_ids["cmk-disk-encryption-set"].versionless_id
   auto_key_rotation_enabled = true
+
+  encryption_type = "EncryptionAtRestWithPlatformAndCustomerKeys"
 
   identity {
     type = "SystemAssigned"
@@ -70,7 +71,7 @@ resource "azurerm_role_assignment" "encryption_set" {
   count = var.key_vault.enabled == true && var.key_vault.config.disk_encryption_set_enabled == true ? 1 : 0
 
   role_definition_name = "Key Vault Crypto Service Encryption User"
-  principal_id = azurerm_disk_encryption_set.default.0.identity[0].principal_id
+  principal_id         = azurerm_disk_encryption_set.default.0.identity[0].principal_id
 
   scope = module.keyvault.0.resource_id
 }

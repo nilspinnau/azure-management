@@ -92,6 +92,21 @@ resource "azurerm_backup_policy_vm" "default" {
 }
 
 
+resource "azurerm_role_assignment" "storage_blob_contributor" {
+  count = var.recovery_vault.enabled == true ? 1 : 0
+
+  scope                = azurerm_storage_account.staging.0.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_recovery_services_vault.default.0.identity.0.principal_id
+}
+
+resource "azurerm_role_assignment" "storage_contributor" {
+  count = var.recovery_vault.enabled == true ? 1 : 0
+
+  scope                = azurerm_storage_account.staging.0.id
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_recovery_services_vault.default.0.identity.0.principal_id
+}
 
 ############
 # Key vault Disk Encryption
@@ -103,9 +118,14 @@ data "azuread_service_principal" "backup_mgmt_serv" {
   display_name = "Backup Management Service"
 }
 
+locals {
+  bms_key_vault_role_assignments = concat(var.recovery_vault.config.disk_encryption.other_key_vault_ids, var.recovery_vault.config.disk_encryption.local_key_vault_enabled == true && var.key_vault.enabled == true ? [module.keyvault.0.resource_id] : [])
+}
+
 resource "azurerm_role_assignment" "rsv_keyvault" {
-  count                = var.key_vault.enabled == true && var.recovery_vault.enabled == true ? 1 : 0
-  scope                = module.keyvault.0.resource_id
+  count = var.recovery_vault.enabled == true ? length(local.bms_key_vault_role_assignments) : 0
+
+  scope                = local.bms_key_vault_role_assignments[count.index]
   role_definition_name = "Key Vault Secrets Officer"
   principal_id         = data.azuread_service_principal.backup_mgmt_serv.0.object_id
 }
@@ -212,7 +232,7 @@ resource "azurerm_storage_account" "staging" {
     expiration_action = "Log"
   }
 
-  https_traffic_only_enabled         = true
+  https_traffic_only_enabled        = true
   infrastructure_encryption_enabled = true
 
   min_tls_version = "TLS1_2"

@@ -145,6 +145,11 @@ variable "recovery_vault" {
       storage_mode_type             = optional(string, "GeoRedundant")
       soft_delete_enabled           = optional(bool, false)
 
+      disk_encryption = optional(object({
+        local_key_vault_enabled = optional(bool, true)
+        other_key_vault_ids     = optional(list(string), [])
+      }), {})
+
       diagnostic_settings = optional(object({
         enabled      = optional(bool, false)
         enabled_log  = optional(map(string))
@@ -187,11 +192,42 @@ variable "key_vault" {
       enabled_for_disk_encryption     = optional(bool, true)
       enabled_for_deployment          = optional(bool, false)
       enabled_for_template_deployment = optional(bool, false)
-      disk_encryption_set_enabled = optional(bool, true)
+      disk_encryption_set_enabled     = optional(bool, true)
       diagnostic_settings = optional(object({
         enabled      = optional(bool, false)
         workspace_id = optional(string, "")
       }), {})
+      keys = optional(map(object({
+        name     = string
+        key_type = string
+        key_opts = optional(list(string), ["sign", "verify"])
+
+        key_size        = optional(number, null)
+        curve           = optional(string, null)
+        not_before_date = optional(string, null)
+        expiration_date = optional(string, null)
+        tags            = optional(map(any), null)
+
+        role_assignments = optional(map(object({
+          role_definition_id_or_name             = string
+          principal_id                           = string
+          description                            = optional(string, null)
+          skip_service_principal_aad_check       = optional(bool, false)
+          condition                              = optional(string, null)
+          condition_version                      = optional(string, null)
+          delegated_managed_identity_resource_id = optional(string, null)
+          principal_type                         = optional(string, null)
+        })), {})
+
+        rotation_policy = optional(object({
+          automatic = optional(object({
+            time_after_creation = optional(string, null)
+            time_before_expiry  = optional(string, null)
+          }), null)
+          expire_after         = optional(string, null)
+          notify_before_expiry = optional(string, null)
+        }), null)
+      })), {})
       network_acls = optional(object({
         bypass                     = optional(string, "None")
         default_action             = optional(string, "Deny")
