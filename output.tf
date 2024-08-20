@@ -62,6 +62,8 @@ output "monitoring" {
     log_analytics_workspace = {
       resource_id  = azurerm_log_analytics_workspace.default.0.id
       workspace_id = azurerm_log_analytics_workspace.default.0.workspace_id
+      location     = azurerm_log_analytics_workspace.default.0.location
+      name         = azurerm_log_analytics_workspace.default.0.name
     }
     storage_account = {
       resource_id = azurerm_storage_account.monitoring.0.id
