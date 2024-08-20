@@ -91,13 +91,13 @@ locals {
 
 
 data "azurerm_monitor_diagnostic_categories" "backup_vault" {
-  count = var.backup_vault.enabled == true && var.backup_vault.config.diagnostic_settings.enabled == true && local.backup_vault_diagnostics_workspace_id != null ? 1 : 0
+  count = var.backup_vault.enabled == true && var.backup_vault.config.diagnostic_settings.enabled == true ? 1 : 0
 
   resource_id = azurerm_data_protection_backup_vault.default.0.id
 }
 
 resource "azurerm_monitor_diagnostic_setting" "backup_vault" {
-  count = var.backup_vault.enabled == true && var.backup_vault.config.diagnostic_settings.enabled == true && local.backup_vault_diagnostics_workspace_id != null ? 1 : 0
+  count = var.backup_vault.enabled == true && var.backup_vault.config.diagnostic_settings.enabled == true ? 1 : 0
 
   name                           = "mondiag-${basename(local.backup_vault_diagnostics_workspace_id)}"
   target_resource_id             = azurerm_data_protection_backup_vault.default.0.id

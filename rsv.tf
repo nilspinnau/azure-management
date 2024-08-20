@@ -167,7 +167,7 @@ resource "azurerm_role_assignment" "backup_mgmt_service_staging_account" {
 
 
 data "azurerm_monitor_diagnostic_categories" "rsv" {
-  count = var.recovery_vault.enabled == true && var.recovery_vault.config.diagnostic_settings.enabled == true && local.bcdr_diagnostics_workspace_id != null ? 1 : 0
+  count = var.recovery_vault.enabled == true && var.recovery_vault.config.diagnostic_settings.enabled == true ? 1 : 0
 
   resource_id = azurerm_recovery_services_vault.default.0.id
 }
@@ -178,7 +178,7 @@ locals {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "rsv" {
-  count = var.recovery_vault.enabled == true && var.recovery_vault.config.diagnostic_settings.enabled == true && local.bcdr_diagnostics_workspace_id != null ? 1 : 0
+  count = var.recovery_vault.enabled == true && var.recovery_vault.config.diagnostic_settings.enabled == true ? 1 : 0
 
   name                           = "mondiag-${basename(local.bcdr_diagnostics_workspace_id)}"
   target_resource_id             = azurerm_recovery_services_vault.default.0.id
