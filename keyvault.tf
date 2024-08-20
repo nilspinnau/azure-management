@@ -65,6 +65,8 @@ resource "azurerm_disk_encryption_set" "default" {
   identity {
     type = "SystemAssigned"
   }
+
+  depends_on = [module.keyvault]
 }
 
 resource "azurerm_role_assignment" "encryption_set" {

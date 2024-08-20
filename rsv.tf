@@ -111,6 +111,10 @@ resource "azurerm_automation_account" "default" {
   public_network_access_enabled = true
   local_authentication_enabled  = false
   sku_name                      = "Basic"
+
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 
