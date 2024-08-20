@@ -10,6 +10,9 @@ output "recovery_services_vault" {
     storage_account = {
       resource_id = azurerm_storage_account.staging.0.id
     }
+    automation_account = {
+      resource_id = try(azurerm_automation_account.default.0.id, null)
+    }
   } : null
 }
 

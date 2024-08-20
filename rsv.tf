@@ -92,41 +92,72 @@ resource "azurerm_backup_policy_vm" "default" {
 }
 
 
-resource "azurerm_role_assignment" "storage_blob_contributor" {
-  count = var.recovery_vault.enabled == true ? 1 : 0
+# automation account for recovery runbooks and automatic extension updates
+resource "azurerm_role_assignment" "aa_contributor" {
+  count = var.recovery_vault.enabled == true && var.recovery_vault.config.automation_account.enabled == true ? 1 : 0
 
-  scope                = azurerm_storage_account.staging.0.id
-  role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_recovery_services_vault.default.0.identity.0.principal_id
-}
-
-resource "azurerm_role_assignment" "storage_contributor" {
-  count = var.recovery_vault.enabled == true ? 1 : 0
-
-  scope                = azurerm_storage_account.staging.0.id
+  scope                = azurerm_automation_account.default.0.id
   role_definition_name = "Contributor"
   principal_id         = azurerm_recovery_services_vault.default.0.identity.0.principal_id
 }
+
+resource "azurerm_automation_account" "default" {
+  count = var.recovery_vault.enabled == true && var.recovery_vault.config.automation_account.enabled == true ? 1 : 0
+
+  name                = module.naming.automation_account.name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  public_network_access_enabled = true
+  local_authentication_enabled  = false
+  sku_name                      = "Basic"
+}
+
 
 ############
 # Key vault Disk Encryption
 
 # This is for Azure Disk Encryption
+resource "azurerm_role_assignment" "storage_blob_contributor" {
+  for_each = { for k, principal_id in var.recovery_vault.config.storage_account.other_vault_principal_ids : k => principal_id if var.recovery_vault.enabled == true }
+
+  scope                = azurerm_storage_account.staging.0.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = each.value
+}
+
+resource "azurerm_role_assignment" "storage_contributor" {
+  for_each = { for k, principal_id in var.recovery_vault.config.storage_account.other_vault_principal_ids : k => principal_id if var.recovery_vault.enabled == true }
+
+  scope                = azurerm_storage_account.staging.0.id
+  role_definition_name = "Contributor"
+  principal_id         = each.value
+}
+
 data "azuread_service_principal" "backup_mgmt_serv" {
   count = var.key_vault.enabled == true && var.recovery_vault.enabled == true ? 1 : 0
 
   display_name = "Backup Management Service"
 }
 
+
 locals {
   bms_key_vault_role_assignments = concat(var.recovery_vault.config.disk_encryption.other_key_vault_ids, var.recovery_vault.config.disk_encryption.local_key_vault_enabled == true && var.key_vault.enabled == true ? [module.keyvault.0.resource_id] : [])
 }
 
-resource "azurerm_role_assignment" "rsv_keyvault" {
+resource "azurerm_role_assignment" "backup_mgmt_service_keyvault" {
   count = var.recovery_vault.enabled == true ? length(local.bms_key_vault_role_assignments) : 0
 
   scope                = local.bms_key_vault_role_assignments[count.index]
   role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = data.azuread_service_principal.backup_mgmt_serv.0.object_id
+}
+
+resource "azurerm_role_assignment" "backup_mgmt_service_staging_account" {
+  count = var.recovery_vault.enabled == true ? 1 : 0
+
+  scope                = azurerm_storage_account.staging.0.id
+  role_definition_name = "Storage Blob Data Contributor"
   principal_id         = data.azuread_service_principal.backup_mgmt_serv.0.object_id
 }
 
@@ -207,7 +238,7 @@ resource "azurerm_private_endpoint" "this" {
 }
 
 
-# storage account required for the 
+# staging storage account
 resource "azurerm_storage_account" "staging" {
   count = var.recovery_vault.enabled == true ? 1 : 0
 

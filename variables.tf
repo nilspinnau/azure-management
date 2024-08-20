@@ -139,6 +139,11 @@ variable "recovery_vault" {
           virtual_network_subnet_ids = optional(list(string), [])
         }), null)
         public_network_access_enabled = optional(bool, true)
+        other_vault_principal_ids     = optional(list(string), [])
+      }), {})
+      automation_account = optional(object({
+        enabled           = optional(bool, true)
+        recovery_runbooks = optional(list(string), [])
       }), {})
       cross_region_restore_enabled  = optional(bool, true)
       public_network_access_enabled = optional(bool, false)
