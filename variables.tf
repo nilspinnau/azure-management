@@ -352,7 +352,7 @@ variable "automanage" {
       enable_updatemanagement        = optional(bool, true)
       enable_vminsights              = optional(bool, true)
       enable_admin_center            = optional(bool, true)
-    }))
+    }), {})
   })
   default = {
     enabled = false
