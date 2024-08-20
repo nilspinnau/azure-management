@@ -73,3 +73,11 @@ output "monitoring" {
   } : null
   sensitive = true
 }
+
+
+output "automanage" {
+  value = var.automanage.enabled == true ? {
+    # if we do not configure custom, use the azure best practices
+    configuration_id = try(azapi_resource.automanage.0.id, "/providers/Microsoft.Automanage/bestPractices/AzureBestPracticesProduction")
+  } : null
+}
