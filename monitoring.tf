@@ -2,7 +2,7 @@
 resource "azurerm_log_analytics_workspace" "default" {
   count = var.monitoring.enabled == true ? 1 : 0
 
-  name                = module.naming.log_analytics_workspace.unqiue_name
+  name                = module.naming.log_analytics_workspace.name_unique
   resource_group_name = var.resource_group_name
   location            = var.location
 
