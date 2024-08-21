@@ -2,23 +2,13 @@ data "azurerm_client_config" "current" {
 
 }
 
-resource "random_string" "kv" {
-  length = 5
-  special = false
-  lower = true
-  upper = false
-  numeric = true
-  override_special = true
-}
-
 module "keyvault" {
   count = var.key_vault.enabled == true ? 1 : 0
 
   source  = "Azure/avm-res-keyvault-vault/azurerm"
   version = "0.7.1"
 
-  # unique identifier does not work with module naming, remove module long term
-  name                = "kv-${join("-", var.resource_suffix)}-${random_string.kv.result}"
+  name                = module.naming.key_vault.name
   location            = var.location
   resource_group_name = var.resource_group_name
 
