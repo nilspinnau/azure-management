@@ -8,7 +8,7 @@ module "keyvault" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
   version = "0.7.1"
 
-  name                = module.naming.key_vault.name_unique
+  name                = module.naming.key_vault.name_unique # this has to be a unique name across all azure, maybe it makes sense to use something more unique here
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -22,7 +22,7 @@ module "keyvault" {
   enabled_for_deployment          = var.key_vault.config.enabled_for_deployment
   enabled_for_template_deployment = var.key_vault.config.enabled_for_template_deployment
 
-  purge_protection_enabled = false
+  purge_protection_enabled = var.key_vault.config.disk_encryption_set_enabled # has to be enabled if we use disk encryption set
 
   sku_name = var.key_vault.config.sku_name
 
