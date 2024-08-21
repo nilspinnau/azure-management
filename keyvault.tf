@@ -22,6 +22,8 @@ module "keyvault" {
   enabled_for_deployment          = var.key_vault.config.enabled_for_deployment
   enabled_for_template_deployment = var.key_vault.config.enabled_for_template_deployment
 
+  purge_protection_enabled = false
+
   sku_name = var.key_vault.config.sku_name
 
   keys = local.keys
@@ -32,6 +34,7 @@ module "keyvault" {
     workspace_resource_id = try(coalesce(var.key_vault.config.diagnostic_settings.workspace_id, try(azurerm_log_analytics_workspace.default.0.id, null)), null)
   } : null
 }
+
 
 locals {
   keys = merge(var.key_vault.config.keys, var.key_vault.config.disk_encryption_set_enabled == true ? { "cmk-disk-encryption-set" = {
