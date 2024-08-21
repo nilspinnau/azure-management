@@ -8,7 +8,7 @@ module "keyvault" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
   version = "0.7.1"
 
-  name                = module.naming.key_vault.name
+  name                = module.naming.key_vault.name_unique
   location            = var.location
   resource_group_name = var.resource_group_name
 
