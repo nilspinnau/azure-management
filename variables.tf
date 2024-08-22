@@ -273,6 +273,17 @@ variable "monitoring" {
   nullable = false
 }
 
+variable "patching" {
+  type = object({
+    enabled = optional(bool, false)
+    config = optional(object({
+
+    }), {})
+  })
+  nullable = false
+  default  = {}
+}
+
 variable "container_registry" {
   type = object({
     enabled = optional(bool, false)

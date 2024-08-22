@@ -18,7 +18,7 @@ module "keyvault" {
   public_network_access_enabled = var.key_vault.config.public_network_access_enabled
   network_acls                  = var.key_vault.config.network_acls
 
-  enabled_for_disk_encryption     = var.key_vault.config.enabled_for_disk_encryption
+  enabled_for_disk_encryption     = var.key_vault.config.disk_encryption_set_enabled
   enabled_for_deployment          = var.key_vault.config.enabled_for_deployment
   enabled_for_template_deployment = var.key_vault.config.enabled_for_template_deployment
 
