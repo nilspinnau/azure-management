@@ -33,5 +33,5 @@ locals {
     "Linux-Syslog"               = "https://github.com/microsoft/AzureMonitorCommunity/blob/master/Azure%20Services/Virtual%20machines/Workbooks/Syslog.workbook"
   }
 
-  workbook_uris_to_deploy = { for k, v in local.workbook_uris : k => v if contains(var.exclude_workbooks, k) }
+  workbook_uris_to_deploy = { for k, v in local.workbook_uris : k => v if !contains(var.exclude_workbooks, k) }
 }
