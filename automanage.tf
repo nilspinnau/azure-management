@@ -1,17 +1,10 @@
-
-data "azurerm_resource_group" "default" {
-  count = var.automanage.enabled == true ? 1 : 0
-
-  name = var.resource_group_name
-}
-
 resource "azapi_resource" "automanage" {
   count = var.automanage.enabled == true ? 1 : 0
 
   type      = "Microsoft.AutoManage/configurationProfiles@2022-05-04"
   name      = "acm-${join("-", var.resource_suffix)}"
   location  = var.location
-  parent_id = data.azurerm_resource_group.default.0.id
+  parent_id = data.azurerm_resource_group.default.id
   body = jsonencode({
     properties = {
       configuration = {

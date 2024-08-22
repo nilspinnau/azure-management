@@ -26,5 +26,8 @@ terraform {
       source  = "azure/azapi"
       version = ">=1.14.0"
     }
+    http = {
+      source = "hashicorp/http"
+    }
   }
 }

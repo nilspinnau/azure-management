@@ -370,3 +370,10 @@ variable "automanage" {
     enabled = false
   }
 }
+
+
+variable "exclude_workbooks" {
+  type = list(string)
+  default = []
+  nullable = false
+}

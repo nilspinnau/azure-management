@@ -3,7 +3,7 @@ resource "azapi_resource" "update_configuration" {
 
   type      = "Microsoft.Maintenance/maintenanceConfigurations@2023-04-01"
   name      = "patch-${join("-", var.resource_suffix)}"
-  parent_id = data.azurerm_resource_group.default.0.id
+  parent_id = data.azurerm_resource_group.default.id
   location  = var.location
 
   body = jsonencode({
