@@ -81,3 +81,10 @@ output "automanage" {
     configuration_id = try(azapi_resource.automanage.0.id, "/providers/Microsoft.Automanage/bestPractices/AzureBestPracticesProduction")
   }
 }
+
+output "patching" {
+  value = var.patching.enabled ? {
+    # if we do not configure custom, use the azure best practices
+    schedule_id = var.patching.enabled ? azapi_resource.update_configuration.0.id : null
+  }
+}
