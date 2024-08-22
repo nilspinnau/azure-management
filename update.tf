@@ -1,8 +1,13 @@
+
+locals {
+  schedule_name = var.patching.enabled == true ? "patch-${join("-", var.resource_suffix)}" : ""
+}
+
 resource "azapi_resource" "update_configuration" {
   count = var.patching.enabled == true ? 1 : 0
 
   type      = "Microsoft.Maintenance/maintenanceConfigurations@2023-04-01"
-  name      = "patch-${join("-", var.resource_suffix)}"
+  name      = local.schedule_name
   parent_id = data.azurerm_resource_group.default.id
   location  = var.location
 

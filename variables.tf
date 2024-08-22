@@ -373,7 +373,7 @@ variable "automanage" {
 
 
 variable "exclude_workbooks" {
-  type = list(string)
-  default = []
+  type     = list(string)
+  default  = []
   nullable = false
 }
