@@ -22,7 +22,8 @@ module "keyvault" {
   enabled_for_deployment          = var.key_vault.config.enabled_for_deployment
   enabled_for_template_deployment = var.key_vault.config.enabled_for_template_deployment
 
-  purge_protection_enabled = var.key_vault.config.disk_encryption_set_enabled # has to be enabled if we use disk encryption set
+  purge_protection_enabled   = var.key_vault.config.disk_encryption_set_enabled || var.key_vault.config.purge_protection_enabled # has to be enabled if we use disk encryption set
+  soft_delete_retention_days = var.key_vault.config.soft_delete_retention_days
 
   sku_name = var.key_vault.config.sku_name
 
