@@ -83,7 +83,7 @@ output "automanage" {
 }
 
 output "patching" {
-  value = var.patching.enabled ? {
+  value = {
     # if we do not configure custom, use the azure best practices
     schedule_id = var.patching.enabled ? azapi_resource.update_configuration.0.id : null
   }
