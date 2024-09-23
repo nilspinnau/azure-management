@@ -32,7 +32,7 @@ resource "azurerm_recovery_services_vault" "default" {
 # Backup policies
 
 resource "azurerm_backup_policy_vm" "default" {
-  for_each = { for policy in var.recovery_vault.config.policies : policy.name => policy if var.recovery_vault.enabled == true  }
+  for_each = { for policy in var.recovery_vault.config.policies : policy.name => policy if var.recovery_vault.enabled == true }
 
   name                = each.value.name
   resource_group_name = var.resource_group_name
@@ -123,7 +123,7 @@ resource "azurerm_automation_account" "default" {
 
 # This is for Azure Disk Encryption
 resource "azurerm_role_assignment" "storage_blob_contributor" {
-  for_each = { for k, principal_id in var.recovery_vault.config.storage_account.other_vault_principal_ids : k => principal_id if var.recovery_vault.enabled == true }
+  for_each = { for k, principal in var.recovery_vault.config.storage_account.other_vault_principals : k => principal.id if var.recovery_vault.enabled == true }
 
   scope                = azurerm_storage_account.staging.0.id
   role_definition_name = "Storage Blob Data Contributor"
@@ -131,7 +131,7 @@ resource "azurerm_role_assignment" "storage_blob_contributor" {
 }
 
 resource "azurerm_role_assignment" "storage_contributor" {
-  for_each = { for k, principal_id in var.recovery_vault.config.storage_account.other_vault_principal_ids : k => principal_id if var.recovery_vault.enabled == true }
+  for_each = { for k, principal in var.recovery_vault.config.storage_account.other_vault_principals : k => principal.id if var.recovery_vault.enabled == true }
 
   scope                = azurerm_storage_account.staging.0.id
   role_definition_name = "Contributor"
