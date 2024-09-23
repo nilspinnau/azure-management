@@ -32,7 +32,7 @@ resource "azurerm_recovery_services_vault" "default" {
 # Backup policies
 
 resource "azurerm_backup_policy_vm" "default" {
-  for_each = { for policy in var.recovery_vault.config.policies : policy.name => policy }
+  for_each = { for policy in var.recovery_vault.config.policies : policy.name => policy if var.recovery_vault.enabled == true  }
 
   name                = each.value.name
   resource_group_name = var.resource_group_name
