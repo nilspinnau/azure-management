@@ -21,7 +21,7 @@ resource "azurerm_data_protection_backup_vault" "default" {
 # Policies
 
 resource "azurerm_data_protection_backup_policy_disk" "default" {
-  for_each = { for policy in var.backup_vault.config.policies : policy.name => policy if policy.type == "disk" }
+  for_each = { for policy in var.backup_vault.config.policies : policy.name => policy if policy.type == "disk" && var.backup_vault.enabled == true }
 
   name     = each.value.name
   vault_id = azurerm_data_protection_backup_vault.default.0.id
@@ -45,7 +45,7 @@ resource "azurerm_data_protection_backup_policy_disk" "default" {
 
 
 resource "azurerm_data_protection_backup_policy_blob_storage" "default" {
-  for_each = { for policy in var.backup_vault.config.policies : policy.name => policy if policy.type == "blob_storage" }
+  for_each = { for policy in var.backup_vault.config.policies : policy.name => policy if policy.type == "blob_storage" && var.backup_vault.enabled == true }
 
   name     = each.value.name
   vault_id = azurerm_data_protection_backup_vault.default.0.id
