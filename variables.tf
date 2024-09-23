@@ -139,7 +139,7 @@ variable "recovery_vault" {
           virtual_network_subnet_ids = optional(list(string), [])
         }), null)
         public_network_access_enabled = optional(bool, true)
-        other_vault_principals     = optional(map(object({
+        other_vault_principals = optional(map(object({
           id = string
         })), {})
       }), {})
