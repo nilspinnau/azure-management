@@ -31,9 +31,9 @@ module "keyvault" {
 
   private_endpoints = var.key_vault.config.private_endpoints
 
-  diagnostic_settings = var.key_vault.config.diagnostic_settings.enabled == true ? {
+  diagnostic_settings = var.key_vault.config.diagnostic_settings.enabled == true ? { 0 = {
     workspace_resource_id = try(coalesce(var.key_vault.config.diagnostic_settings.workspace_id, try(azurerm_log_analytics_workspace.default.0.id, null)), null)
-  } : null
+  }} : null
 }
 
 
