@@ -2,7 +2,7 @@
 resource "azurerm_log_analytics_workspace" "default" {
   count = var.monitoring.enabled == true ? 1 : 0
 
-  name                = module.naming.log_analytics_workspace.name_unique
+  name                = "law-${var.resource_suffix}"
   resource_group_name = var.resource_group_name
   location            = var.location
 
@@ -14,11 +14,17 @@ resource "azurerm_log_analytics_workspace" "default" {
   tags = var.tags
 }
 
+resource "random_string" "monitoring" {
+  length  = 24
+  special = false
+  upper   = false
+}
+
 # storage account required for the 
 resource "azurerm_storage_account" "monitoring" {
   count = var.monitoring.enabled == true ? 1 : 0
 
-  name                = module.naming.storage_account.name_unique
+  name                = random_string.monitoring.result
   location            = var.location
   resource_group_name = var.resource_group_name
 

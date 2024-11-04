@@ -1,7 +1,7 @@
 resource "azurerm_data_protection_backup_vault" "default" {
   count = var.backup_vault.enabled == true ? 1 : 0
 
-  name                = "bvault-${join("-", var.resource_suffix)}"
+  name                = "bvault-${var.resource_suffix}"
   resource_group_name = var.resource_group_name
   location            = var.location
   datastore_type      = var.backup_vault.config.datastore_type
@@ -108,13 +108,6 @@ resource "azurerm_monitor_diagnostic_setting" "backup_vault" {
     for_each = data.azurerm_monitor_diagnostic_categories.backup_vault.0.log_category_types
     content {
       category = enabled_log.value
-    }
-  }
-
-  dynamic "metric" {
-    for_each = data.azurerm_monitor_diagnostic_categories.backup_vault.0.metrics
-    content {
-      category = metric.value
     }
   }
 }

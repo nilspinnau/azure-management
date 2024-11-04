@@ -1,7 +1,7 @@
 resource "azurerm_recovery_services_vault" "default" {
   count = var.recovery_vault.enabled == true ? 1 : 0
 
-  name                = module.naming.recovery_services_vault.name
+  name                = "rsv-${var.resource_suffix}"
   resource_group_name = var.resource_group_name
   location            = var.location
 
@@ -43,7 +43,7 @@ resource "azurerm_backup_policy_vm" "default" {
   instant_restore_retention_days = each.value.instant_restore_retention_days #snapshots to save, default=2
 
   instant_restore_resource_group {
-    prefix = try(each.value.resource_group.prefix, "${module.naming.resource_group.name}-backup")
+    prefix = try(each.value.resource_group.prefix, "rg-${var.resource_suffix}-backup")
     suffix = try(each.value.resource_group.suffix, null)
   }
 
@@ -104,7 +104,7 @@ resource "azurerm_role_assignment" "aa_contributor" {
 resource "azurerm_automation_account" "default" {
   count = var.recovery_vault.enabled == true && var.recovery_vault.config.automation_account.enabled == true ? 1 : 0
 
-  name                = module.naming.automation_account.name
+  name                = "aa-${var.resource_suffix}"
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -195,13 +195,6 @@ resource "azurerm_monitor_diagnostic_setting" "rsv" {
       category = enabled_log.value
     }
   }
-
-  dynamic "metric" {
-    for_each = data.azurerm_monitor_diagnostic_categories.rsv.0.metrics
-    content {
-      category = metric.value
-    }
-  }
 }
 
 ## private endpoint
@@ -241,12 +234,18 @@ resource "azurerm_private_endpoint" "this" {
   }
 }
 
+resource "random_string" "rsv" {
+  length  = 24
+  special = false
+  upper   = false
+}
+
 
 # staging storage account
 resource "azurerm_storage_account" "staging" {
   count = var.recovery_vault.enabled == true ? 1 : 0
 
-  name                = module.naming.storage_account.name_unique
+  name                = random_string.rsv.result
   location            = var.location
   resource_group_name = var.resource_group_name
 

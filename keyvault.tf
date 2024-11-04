@@ -8,7 +8,7 @@ module "keyvault" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
   version = "0.7.1"
 
-  name                = module.naming.key_vault.name_unique # this has to be a unique name across all azure, maybe it makes sense to use something more unique here
+  name                = "kv-${var.resource_suffix}" # this has to be a unique name across all azure, maybe it makes sense to use something more unique here
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -56,7 +56,7 @@ locals {
 resource "azurerm_disk_encryption_set" "default" {
   count = var.key_vault.enabled == true && var.key_vault.config.disk_encryption_set_enabled == true ? 1 : 0
 
-  name                = module.naming.disk_encryption_set.name
+  name                = "dse-${var.resource_suffix}"
   resource_group_name = var.resource_group_name
   location            = var.location
 

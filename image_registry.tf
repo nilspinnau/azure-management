@@ -4,7 +4,7 @@
 resource "azurerm_shared_image_gallery" "default" {
   count = var.shared_image_gallery.enabled == true ? 1 : 0
 
-  name                = module.naming.shared_image_gallery.name
+  name                = "gal-${var.resource_suffix}"
   resource_group_name = var.resource_group_name
   location            = var.location
 

@@ -2,7 +2,7 @@ resource "azapi_resource" "automanage" {
   count = var.automanage.enabled == true ? 1 : 0
 
   type      = "Microsoft.AutoManage/configurationProfiles@2022-05-04"
-  name      = "acm-${join("-", var.resource_suffix)}"
+  name      = "acm-${var.resource_suffix}"
   location  = var.location
   parent_id = var.resource_group_id
   body = jsonencode({

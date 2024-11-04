@@ -1,6 +1,6 @@
 
 locals {
-  schedule_name = var.patching.enabled == true ? "patch-${join("-", var.resource_suffix)}" : ""
+  schedule_name = var.patching.enabled == true ? "patch-${var.resource_suffix}" : ""
 }
 
 resource "azapi_resource" "update_configuration" {

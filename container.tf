@@ -5,7 +5,7 @@ module "container_registry" {
   version = "0.1.0"
   # insert the 2 required variables here
 
-  name                = module.naming.container_registry.name
+  name                = "cr-${var.resource_suffix}"
   location            = var.location
   resource_group_name = var.resource_group_name
 

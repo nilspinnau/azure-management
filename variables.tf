@@ -14,8 +14,8 @@ variable "resource_group_id" {
 }
 
 variable "resource_suffix" {
-  type    = list(string)
-  default = []
+  type    = string
+  default = "default"
 }
 
 
