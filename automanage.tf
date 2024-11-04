@@ -4,7 +4,7 @@ resource "azapi_resource" "automanage" {
   type      = "Microsoft.AutoManage/configurationProfiles@2022-05-04"
   name      = "acm-${join("-", var.resource_suffix)}"
   location  = var.location
-  parent_id = data.azurerm_resource_group.default.id
+  parent_id = var.resource_group_id
   body = jsonencode({
     properties = {
       configuration = {

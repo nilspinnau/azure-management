@@ -8,7 +8,7 @@ resource "azapi_resource" "update_configuration" {
 
   type      = "Microsoft.Maintenance/maintenanceConfigurations@2023-04-01"
   name      = local.schedule_name
-  parent_id = data.azurerm_resource_group.default.id
+  parent_id = var.resource_group_id
   location  = var.location
 
   body = jsonencode({

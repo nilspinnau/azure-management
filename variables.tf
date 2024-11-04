@@ -9,6 +9,10 @@ variable "resource_group_name" {
   nullable = false
 }
 
+variable "resource_group_id" {
+  type = string
+}
+
 variable "resource_suffix" {
   type    = list(string)
   default = []
