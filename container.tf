@@ -1,3 +1,12 @@
+
+
+resource "random_string" "container_registry" {
+  length  = 50
+  special = false
+  upper   = false
+  numeric = true
+}
+
 module "container_registry" {
   count = var.container_registry.enabled == true ? 1 : 0
 
@@ -5,7 +14,7 @@ module "container_registry" {
   version = "0.1.0"
   # insert the 2 required variables here
 
-  name                = "cr-${var.resource_suffix}"
+  name                = random_string.container_registry.result
   location            = var.location
   resource_group_name = var.resource_group_name
 
