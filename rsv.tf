@@ -139,7 +139,7 @@ resource "azurerm_role_assignment" "storage_contributor" {
 }
 
 data "azuread_service_principal" "backup_mgmt_serv" {
-  count = var.key_vault.enabled == true && var.recovery_vault.enabled == true ? 1 : 0
+  count = var.recovery_vault.enabled == true ? 1 : 0
 
   display_name = "Backup Management Service"
 }
