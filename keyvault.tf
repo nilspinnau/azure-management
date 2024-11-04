@@ -33,7 +33,7 @@ module "keyvault" {
 
   diagnostic_settings = var.key_vault.config.diagnostic_settings.enabled == true ? { 0 = {
     workspace_resource_id = try(coalesce(var.key_vault.config.diagnostic_settings.workspace_id, try(azurerm_log_analytics_workspace.default.0.id, null)), null)
-  }} : null
+  } } : null
 }
 
 
