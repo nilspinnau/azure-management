@@ -269,7 +269,7 @@ resource "azurerm_private_endpoint" "this_unmanaged_dns_zone_groups" {
 module "staging_storage" {
   count = var.recovery_vault.enabled == true ? 1 : 0
 
-  source = "git@github.com:nilspinnau/azure-modules.git/storage-account"
+  source = "github.com/nilspinnau/azure-modules.git/storage-account"
 
   name                = "stgarsv"
   resource_group_name = var.resource_group_name
