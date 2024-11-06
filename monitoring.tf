@@ -18,7 +18,7 @@ resource "azurerm_log_analytics_workspace" "default" {
 module "staging_storage" {
   count = var.monitoring.enabled == true ? 1 : 0
 
-  source = "git@github:nilspinnau/azure-modules.git/storage-account"
+  source = "git@github.com:nilspinnau/azure-modules.git/storage-account"
 
   name                = "stgamon"
   resource_group_name = var.resource_group_name
