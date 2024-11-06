@@ -103,7 +103,7 @@ variable "recovery_vault" {
     enabled = optional(bool, false)
     config = optional(object({
       policies = optional(list(object({
-        resource_group = optional(object({
+        instant_restore_resource_group = optional(object({
           suffix = optional(string, null)
           prefix = string
         }))
@@ -142,6 +142,13 @@ variable "recovery_vault" {
           ip_rules                   = optional(list(string), [])
           virtual_network_subnet_ids = optional(list(string), [])
         }), null)
+        private_endpoints = optional(map(object({
+          subresource_name = string
+          private_dns_zone_resource_ids = list(string)
+          subnet_resource_id = string
+          location = optional(string, null)
+          resource_group_name = optional(string, null)
+        })))
         public_network_access_enabled = optional(bool, true)
         other_vault_principals = optional(map(object({
           id = string
@@ -167,6 +174,7 @@ variable "recovery_vault" {
         metric       = optional(map(string))
         workspace_id = optional(string, "")
       }), {})
+      private_endpoints_manage_dns_zone_group = optional(bool, true)
       private_endpoints = optional(map(object({
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
@@ -272,7 +280,23 @@ variable "monitoring" {
   type = object({
     enabled = optional(bool, false)
     config = optional(object({
-
+      private_endpoints_manage_dns_zone_group = optional(bool, true)
+      private_endpoints = optional(map(object({
+        name                                    = optional(string, null)
+        tags                                    = optional(map(string), null)
+        subnet_resource_id                      = string
+        private_dns_zone_group_name             = optional(string, "default")
+        private_dns_zone_resource_ids           = optional(set(string), [])
+        application_security_group_associations = optional(map(string), {})
+        private_service_connection_name         = optional(string, null)
+        network_interface_name                  = optional(string, null)
+        location                                = optional(string, null)
+        resource_group_name                     = optional(string, null)
+        ip_configurations = optional(map(object({
+          name               = string
+          private_ip_address = string
+        })), {})
+      })), {})
     }))
   })
   default  = {}

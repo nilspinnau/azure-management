@@ -42,9 +42,12 @@ resource "azurerm_backup_policy_vm" "default" {
 
   instant_restore_retention_days = each.value.instant_restore_retention_days #snapshots to save, default=2
 
-  instant_restore_resource_group {
-    prefix = try(each.value.resource_group.prefix, "rg-${var.resource_suffix}-backup")
-    suffix = try(each.value.resource_group.suffix, null)
+  dynamic "instant_restore_resource_group" {
+    for_each = each.value.instant_restore_resource_group != null ? [1] : []
+    content {
+      prefix = instant_restore_resource_group.value.prefix
+      suffix = instant_restore_resource_group.value.suffix 
+    }
   }
 
   policy_type = "V2"
@@ -196,91 +199,126 @@ resource "azurerm_monitor_diagnostic_setting" "rsv" {
     }
   }
 }
-
-## private endpoint
+# The PE resource when we are managing the private_dns_zone_group block:
 resource "azurerm_private_endpoint" "this" {
-  count = var.recovery_vault.enabled == true ? length(var.recovery_vault.config.private_endpoints) * 2 : 0
+  for_each = { for k, v in var.recovery_vault.config.private_endpoints : k => v if var.recovery_vault.config.private_endpoints_manage_dns_zone_group }
 
-  location                      = coalesce(var.recovery_vault.config.private_endpoints[floor(count.index / 2)].location, var.location)
-  name                          = var.recovery_vault.config.private_endpoints[floor(count.index / 2)].name != null ? var.recovery_vault.config.private_endpoints[floor(count.index / 2)].name : "pe-${azurerm_recovery_services_vault.default.0.name}"
-  resource_group_name           = var.recovery_vault.config.private_endpoints[floor(count.index / 2)].resource_group_name != null ? var.recovery_vault.config.private_endpoints[floor(count.index / 2)].resource_group_name : var.resource_group_name
-  subnet_id                     = var.recovery_vault.config.private_endpoints[floor(count.index / 2)].subnet_resource_id
-  custom_network_interface_name = var.recovery_vault.config.private_endpoints[floor(count.index / 2)].network_interface_name
-  tags                          = var.recovery_vault.config.private_endpoints[floor(count.index / 2)].tags
+  location                      = coalesce(each.value.location, var.location)
+  name                          = coalesce(each.value.name, "pep-${each.value.subresource_name}-rsv-${var.resource_suffix}")
+  resource_group_name           = coalesce(each.value.resource_group_name, var.resource_group_name)
+  subnet_id                     = each.value.subnet_resource_id
+  custom_network_interface_name = coalesce(each.value.network_interface_name, "nic-${each.value.subresource_name}-rsv-${var.resource_suffix}")
+  tags                          = each.value.tags
 
   private_service_connection {
     is_manual_connection           = false
-    name                           = var.recovery_vault.config.private_endpoints[floor(count.index / 2)].private_service_connection_name != null ? var.recovery_vault.config.private_endpoints[floor(count.index / 2)].private_service_connection_name : "pse-${azurerm_recovery_services_vault.default.0.name}"
-    private_connection_resource_id = azurerm_recovery_services_vault.default.0.id
-    subresource_names              = ["AzureSiteRecovery", "AzureBackup"]
+    name                           = coalesce(each.value.private_service_connection_name, "pse-${each.value.subresource_name}-rsv-${var.resource_suffix}")
+    private_connection_resource_id = azurerm_storage_account.default.id
+    subresource_names              = [each.value.subresource_name] # can anyways only be ever one
   }
   dynamic "ip_configuration" {
-    for_each = var.recovery_vault.config.private_endpoints[floor(count.index / 2)].ip_configurations
+    for_each = each.value.ip_configurations
 
     content {
       name               = ip_configuration.value.name
       private_ip_address = ip_configuration.value.private_ip_address
-      member_name        = "rsv"
-      subresource_name   = "rsv"
+      member_name        = each.value.subresource_name
+      subresource_name   = each.value.subresource_name
     }
   }
   dynamic "private_dns_zone_group" {
-    for_each = length(var.recovery_vault.config.private_endpoints[floor(count.index / 2)].private_dns_zone_resource_ids) > 0 ? ["this"] : []
+    for_each = length(each.value.private_dns_zone_resource_ids) > 0 ? ["this"] : []
 
     content {
-      name                 = var.recovery_vault.config.private_endpoints[floor(count.index / 2)].private_dns_zone_group_name
-      private_dns_zone_ids = var.recovery_vault.config.private_endpoints[floor(count.index / 2)].private_dns_zone_resource_ids
+      name                 = each.value.private_dns_zone_group_name
+      private_dns_zone_ids = each.value.private_dns_zone_resource_ids
     }
   }
 }
 
-resource "random_string" "rsv" {
-  length  = 24
-  special = false
-  upper   = false
-}
+# The PE resource when we are managing **not** the private_dns_zone_group block, such as when using Azure Policy:
+resource "azurerm_private_endpoint" "this_unmanaged_dns_zone_groups" {
+  for_each = { for k, v in var.recovery_vault.config.private_endpoints : k => v if !var.recovery_vault.config.private_endpoints_manage_dns_zone_group }
 
+  location                      = coalesce(each.value.location, var.location)
+  name                          = coalesce(each.value.name, "pep-${each.value.subresource_name}-rsv-${var.resource_suffix}")
+  resource_group_name           = coalesce(each.value.resource_group_name, var.resource_group_name)
+  subnet_id                     = each.value.subnet_resource_id
+  custom_network_interface_name = coalesce(each.value.network_interface_name, "nic-${each.value.subresource_name}-rsv-${var.resource_suffix}")
+  tags                          = each.value.tags
+
+  private_service_connection {
+    is_manual_connection           = false
+    name                           = coalesce(each.value.private_service_connection_name, "pse-${each.value.subresource_name}-rsv-${var.resource_suffix}")
+    private_connection_resource_id = azurerm_storage_account.default.id
+    subresource_names              = [each.value.subresource_name]
+  }
+  dynamic "ip_configuration" {
+    for_each = each.value.ip_configurations
+
+    content {
+      name               = ip_configuration.value.name
+      private_ip_address = ip_configuration.value.private_ip_address
+      member_name        = each.value.subresource_name
+      subresource_name   = ip_configuration.value.subresource_name
+    }
+  }
+}
 
 # staging storage account
-resource "azurerm_storage_account" "staging" {
+module "staging_storage" {
   count = var.recovery_vault.enabled == true ? 1 : 0
 
-  name                = random_string.rsv.result
-  location            = var.location
+  source = "git@github.com:nilspinnau/azure-modules.git/storage-account"
+
+  name = "stgarsv"
   resource_group_name = var.resource_group_name
+  resource_postfix    = var.resource_postfix
 
-  account_kind = "StorageV2"
-  account_tier = "Standard"
+  location = var.location
 
-  access_tier              = "Hot"
-  account_replication_type = "LRS"
+  private_endpoints = var.recovery_vault.config.storage_account.private_endpoints
 
-  cross_tenant_replication_enabled = false
-  allow_nested_items_to_be_public  = false
+  private_endpoints_manage_dns_zone_group = true
 
-  shared_access_key_enabled = true
-
-  sas_policy {
-    # 10 min max for sas tokens
-    expiration_period = "00.00:10:00"
-    expiration_action = "Log"
+  public_access = {
+    enabled = var.recovery_vault.config.storage_account.public_access.enabled
+    network_rules = var.recovery_vault.config.storage_account.public_access.network_rules
   }
 
-  https_traffic_only_enabled        = true
-  infrastructure_encryption_enabled = true
+  file_shares = []
+  containers_list = []
 
-  min_tls_version = "TLS1_2"
+  access_tier              = "Cool"
+  account_kind             = "StorageV2"
+  account_replication_type = "LRS"
+  account_tier             = "Standard"
 
-  public_network_access_enabled = var.recovery_vault.config.storage_account.public_network_access_enabled
-  dynamic "network_rules" {
-    for_each = var.recovery_vault.config.storage_account.network_rules != null ? { this = var.recovery_vault.config.storage_account.network_rules } : {}
-    content {
-      bypass                     = network_rules.value.bypass
-      default_action             = network_rules.value.default_action
-      ip_rules                   = network_rules.value.ip_rules
-      virtual_network_subnet_ids = network_rules.value.virtual_network_subnet_ids
+  blob_soft_delete_retention_days      = 2
+  change_feed_retention_in_days        = 2
+  container_soft_delete_retention_days = 2
+  enable_change_feed                   = false
+  enable_last_access_time              = false
+  enable_point_in_time_restore         = false
+  enable_versioning                    = false
+
+  queue_retention_policy_days = 2
+
+  enable_advanced_threat_protection = false
+  enable_sas_key                    = false
+  min_tls_version                   = "TLS1_2"
+
+  data_lake_gen_2 = {
+    enabled = false
+    config = {
+      sftp_enabled  = false
+      nfsv3_enabled = false
     }
   }
 
-  tags = var.tags
+  lifecycles = []
+
+  monitoring = {
+    enabled = false
+  }
 }

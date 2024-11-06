@@ -14,44 +14,58 @@ resource "azurerm_log_analytics_workspace" "default" {
   tags = var.tags
 }
 
-resource "random_string" "monitoring" {
-  length  = 24
-  special = false
-  upper   = false
-}
-
-# storage account required for the 
-resource "azurerm_storage_account" "monitoring" {
+# staging storage account
+module "staging_storage" {
   count = var.monitoring.enabled == true ? 1 : 0
 
-  name                = random_string.monitoring.result
-  location            = var.location
+  source = "git@github.com:nilspinnau/azure-modules.git/storage-account"
+
+  name = "stgamon"
   resource_group_name = var.resource_group_name
+  resource_postfix    = var.resource_postfix
 
-  account_kind = "StorageV2"
-  account_tier = "Standard"
+  location = var.location
 
-  access_tier              = "Hot"
-  account_replication_type = "LRS"
+  private_endpoints = var.monitoring.config.storage_account.private_endpoints
 
-  cross_tenant_replication_enabled = false
-  allow_nested_items_to_be_public  = false
+  private_endpoints_manage_dns_zone_group = true
 
-  shared_access_key_enabled = true # IaaSDiagnostics uses key access
-
-  https_traffic_only_enabled        = true
-  infrastructure_encryption_enabled = true
-
-  min_tls_version = "TLS1_2"
-
-  public_network_access_enabled = true
-  # https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-nsg-flow-logging-cli
-  network_rules {
-    bypass                     = ["AzureServices"]
-    default_action             = "Deny"
-    virtual_network_subnet_ids = []
-    ip_rules                   = []
+  public_access = {
+    enabled = var.monitoring.config.storage_account.public_access.enabled
+    network_rules = var.monitoring.config.storage_account.public_access.network_rules
   }
 
-  tags = var.tags
+  file_shares = []
+  containers_list = []
+
+  access_tier              = "Hot"
+  account_kind             = "StorageV2"
+  account_replication_type = "ZRS"
+  account_tier             = "Standard"
+
+  blob_soft_delete_retention_days      = 7
+  change_feed_retention_in_days        = 7
+  container_soft_delete_retention_days = 7
+  enable_change_feed                   = false
+  enable_last_access_time              = false
+  enable_point_in_time_restore         = false
+  enable_versioning                    = false
+
+  enable_advanced_threat_protection = false
+  enable_sas_key                    = false
+  min_tls_version                   = "TLS1_2"
+
+  data_lake_gen_2 = {
+    enabled = false
+    config = {
+      sftp_enabled  = false
+      nfsv3_enabled = false
+    }
+  }
+
+  lifecycles = []
+
+  monitoring = {
+    enabled = false
+  }
 }
