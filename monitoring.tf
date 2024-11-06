@@ -18,9 +18,9 @@ resource "azurerm_log_analytics_workspace" "default" {
 module "staging_storage" {
   count = var.monitoring.enabled == true ? 1 : 0
 
-  source = "git@github.com:nilspinnau/azure-modules.git/storage-account"
+  source = "git@github:nilspinnau/azure-modules.git/storage-account"
 
-  name = "stgamon"
+  name                = "stgamon"
   resource_group_name = var.resource_group_name
   resource_postfix    = var.resource_postfix
 
@@ -31,11 +31,11 @@ module "staging_storage" {
   private_endpoints_manage_dns_zone_group = true
 
   public_access = {
-    enabled = var.monitoring.config.storage_account.public_access.enabled
+    enabled       = var.monitoring.config.storage_account.public_access.enabled
     network_rules = var.monitoring.config.storage_account.public_access.network_rules
   }
 
-  file_shares = []
+  file_shares     = []
   containers_list = []
 
   access_tier              = "Hot"

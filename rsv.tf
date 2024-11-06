@@ -46,7 +46,7 @@ resource "azurerm_backup_policy_vm" "default" {
     for_each = each.value.instant_restore_resource_group != null ? [1] : []
     content {
       prefix = instant_restore_resource_group.value.prefix
-      suffix = instant_restore_resource_group.value.suffix 
+      suffix = instant_restore_resource_group.value.suffix
     }
   }
 
@@ -269,9 +269,9 @@ resource "azurerm_private_endpoint" "this_unmanaged_dns_zone_groups" {
 module "staging_storage" {
   count = var.recovery_vault.enabled == true ? 1 : 0
 
-  source = "git@github.com:nilspinnau/azure-modules.git/storage-account"
+  source = "git@github:nilspinnau/azure-modules.git/storage-account"
 
-  name = "stgarsv"
+  name                = "stgarsv"
   resource_group_name = var.resource_group_name
   resource_postfix    = var.resource_postfix
 
@@ -282,11 +282,11 @@ module "staging_storage" {
   private_endpoints_manage_dns_zone_group = true
 
   public_access = {
-    enabled = var.recovery_vault.config.storage_account.public_access.enabled
+    enabled       = var.recovery_vault.config.storage_account.public_access.enabled
     network_rules = var.recovery_vault.config.storage_account.public_access.network_rules
   }
 
-  file_shares = []
+  file_shares     = []
   containers_list = []
 
   access_tier              = "Cool"

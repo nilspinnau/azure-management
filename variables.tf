@@ -143,11 +143,11 @@ variable "recovery_vault" {
           virtual_network_subnet_ids = optional(list(string), [])
         }), null)
         private_endpoints = optional(map(object({
-          subresource_name = string
+          subresource_name              = string
           private_dns_zone_resource_ids = list(string)
-          subnet_resource_id = string
-          location = optional(string, null)
-          resource_group_name = optional(string, null)
+          subnet_resource_id            = string
+          location                      = optional(string, null)
+          resource_group_name           = optional(string, null)
         })))
         public_network_access_enabled = optional(bool, true)
         other_vault_principals = optional(map(object({
@@ -179,6 +179,7 @@ variable "recovery_vault" {
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
         subnet_resource_id                      = string
+        subresource_name                        = string
         private_dns_zone_group_name             = optional(string, "default")
         private_dns_zone_resource_ids           = optional(set(string), [])
         application_security_group_associations = optional(map(string), {})
