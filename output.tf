@@ -89,3 +89,10 @@ output "patching" {
     schedule_id   = var.patching.enabled ? azapi_resource.update_configuration.0.id : null
   }
 }
+
+output "shared_image_gallery" {
+  value = var.shared_image_gallery.enabled == true ? {
+    resource_id = azurerm_shared_image_gallery.default.0.id
+    name        = azurerm_shared_image_gallery.default.0.name
+  } : null
+}
