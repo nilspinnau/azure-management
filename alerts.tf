@@ -1,7 +1,7 @@
 
 resource "azurerm_monitor_action_group" "default" {
   name                = "ag-servicehealth-${var.resource_suffix}"
-  location            = var.location
+  location            = "global"
   resource_group_name = var.resource_group_name
 
   short_name = "svchealth"
