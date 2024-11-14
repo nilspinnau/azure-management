@@ -142,6 +142,7 @@ variable "recovery_vault" {
           ip_rules                   = optional(list(string), [])
           virtual_network_subnet_ids = optional(list(string), [])
         }), {})
+        private_endpoints_manage_dns_zone_group = optional(bool, true)
         private_endpoints = optional(map(object({
           name                                    = optional(string, null)
           tags                                    = optional(map(string), null)
@@ -158,7 +159,7 @@ variable "recovery_vault" {
             name               = string
             private_ip_address = string
           })), {})
-        })))
+        })), {})
         public_network_access_enabled = optional(bool, true)
         other_vault_principals = optional(map(object({
           id = string
@@ -265,6 +266,7 @@ variable "key_vault" {
         ip_rules                   = optional(list(string), [])
         virtual_network_subnet_ids = optional(list(string), [])
       }), {})
+      private_endpoints_manage_dns_zone_group = optional(bool, true)
       private_endpoints = optional(map(object({
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
@@ -293,15 +295,15 @@ variable "monitoring" {
     enabled = optional(bool, false)
     config = optional(object({
       storage_account = optional(object({
-        enabled                                 = optional(bool, false)
-        private_endpoints_manage_dns_zone_group = optional(bool, true)
-        public_network_access_enabled           = optional(bool, false)
+        enabled                       = optional(bool, false)
+        public_network_access_enabled = optional(bool, false)
         network_rules = optional(object({
           bypass                     = optional(list(string), [])
           default_action             = optional(string, "Deny")
           ip_rules                   = optional(list(string), [])
           virtual_network_subnet_ids = optional(list(string), [])
         }), {})
+        private_endpoints_manage_dns_zone_group = optional(bool, true)
         private_endpoints = optional(map(object({
           name                                    = optional(string, null)
           tags                                    = optional(map(string), null)
@@ -318,7 +320,7 @@ variable "monitoring" {
             name               = string
             private_ip_address = string
           })), {})
-        })))
+        })), {})
       }), {})
     }), {})
   })
@@ -367,6 +369,7 @@ variable "container_registry" {
         enabled      = optional(bool, false)
         workspace_id = optional(string, "")
       }), {})
+      private_endpoints_manage_dns_zone_group = optional(bool, true)
       private_endpoints = optional(map(object({
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
@@ -383,7 +386,7 @@ variable "container_registry" {
           name               = string
           private_ip_address = string
         })), {})
-      })))
+      })), {})
     }), {})
   })
   default  = {}
