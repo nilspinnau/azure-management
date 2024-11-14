@@ -18,7 +18,7 @@ resource "azurerm_monitor_action_group" "default" {
 resource "azurerm_monitor_activity_log_alert" "servicehealth" {
   name                = "alert-servicehealth"
   resource_group_name = var.resource_group_name
-  location            = var.location
+  location            = "global"
 
   action {
     action_group_id = azurerm_monitor_action_group.default.id
