@@ -293,15 +293,16 @@ module "staging_storage" {
   account_replication_type = "LRS"
   account_tier             = "Standard"
 
-  blob_soft_delete_retention_days      = 2
-  change_feed_retention_in_days        = 2
-  container_soft_delete_retention_days = 2
+  blob_soft_delete_retention_days      = null
+  change_feed_retention_in_days        = null
+  container_soft_delete_retention_days = null
   enable_change_feed                   = false
   enable_last_access_time              = false
   enable_point_in_time_restore         = false
   enable_versioning                    = false
 
-  queue_retention_policy_days = 2
+  queue_retention_policy_days = null
+  share_soft_delete_retention_days = null
 
   enable_advanced_threat_protection = false
   enable_sas_key                    = true
