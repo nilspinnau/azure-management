@@ -202,7 +202,7 @@ variable "recovery_vault" {
           name               = string
           private_ip_address = string
         })), {})
-      })))
+      })), {})
     }), {})
   })
   validation {
@@ -283,7 +283,7 @@ variable "key_vault" {
           name               = string
           private_ip_address = string
         })), {})
-      })))
+      })), {})
     }), {})
   })
   default  = {}
