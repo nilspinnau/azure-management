@@ -11,7 +11,7 @@ resource "azapi_resource" "update_configuration" {
   parent_id = var.resource_group_id
   location  = var.location
 
-  body = jsonencode({
+  body = {
     properties = {
       extensionProperties = {
         InGuestPatchMode = "User"
@@ -45,5 +45,5 @@ resource "azapi_resource" "update_configuration" {
         expirationDateTime = null
       }
     }
-  })
+  }
 }

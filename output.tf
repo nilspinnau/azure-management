@@ -8,7 +8,7 @@ output "recovery_services_vault" {
     principal_id        = azurerm_recovery_services_vault.default.0.identity.0.principal_id
     policy_ids          = { for policy in azurerm_backup_policy_vm.default : policy.name => policy.id }
     storage_account = {
-      resource_id = azurerm_storage_account.staging.0.id
+      resource_id = module.staging_storage.0.id
     }
     automation_account = {
       resource_id = try(azurerm_automation_account.default.0.id, null)
@@ -66,9 +66,9 @@ output "monitoring" {
       name         = azurerm_log_analytics_workspace.default.0.name
     }
     storage_account = {
-      resource_id = azurerm_storage_account.monitoring.0.id
-      name        = azurerm_storage_account.monitoring.0.name
-      key         = azurerm_storage_account.monitoring.0.primary_access_key
+      resource_id = module.monitor_storage.0.id
+      name        = module.monitor_storage.0.name
+      key         = module.monitor_storage.0.primary_access_key
     }
   } : null
   sensitive = true

@@ -141,13 +141,23 @@ variable "recovery_vault" {
           default_action             = optional(string, "Deny")
           ip_rules                   = optional(list(string), [])
           virtual_network_subnet_ids = optional(list(string), [])
-        }), null)
+        }), {})
         private_endpoints = optional(map(object({
-          subresource_name              = string
-          private_dns_zone_resource_ids = list(string)
-          subnet_resource_id            = string
-          location                      = optional(string, null)
-          resource_group_name           = optional(string, null)
+          name                                    = optional(string, null)
+          tags                                    = optional(map(string), null)
+          subnet_resource_id                      = string
+          subresource_name                        = string
+          private_dns_zone_group_name             = optional(string, "default")
+          private_dns_zone_resource_ids           = optional(set(string), [])
+          application_security_group_associations = optional(map(string), {})
+          private_service_connection_name         = optional(string, null)
+          network_interface_name                  = optional(string, null)
+          location                                = optional(string, null)
+          resource_group_name                     = optional(string, null)
+          ip_configurations = optional(map(object({
+            name               = string
+            private_ip_address = string
+          })), {})
         })))
         public_network_access_enabled = optional(bool, true)
         other_vault_principals = optional(map(object({
@@ -191,7 +201,7 @@ variable "recovery_vault" {
           name               = string
           private_ip_address = string
         })), {})
-      })), {})
+      })))
     }), {})
   })
   validation {
@@ -249,7 +259,7 @@ variable "key_vault" {
           notify_before_expiry = optional(string, null)
         }), null)
       })), {})
-      network_acls = optional(object({
+      network_rules = optional(object({
         bypass                     = optional(string, "None")
         default_action             = optional(string, "Deny")
         ip_rules                   = optional(list(string), [])
@@ -259,6 +269,7 @@ variable "key_vault" {
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
         subnet_resource_id                      = string
+        subresource_name                        = string
         private_dns_zone_group_name             = optional(string, "default")
         private_dns_zone_resource_ids           = optional(set(string), [])
         application_security_group_associations = optional(map(string), {})
@@ -281,24 +292,35 @@ variable "monitoring" {
   type = object({
     enabled = optional(bool, false)
     config = optional(object({
-      private_endpoints_manage_dns_zone_group = optional(bool, true)
-      private_endpoints = optional(map(object({
-        name                                    = optional(string, null)
-        tags                                    = optional(map(string), null)
-        subnet_resource_id                      = string
-        private_dns_zone_group_name             = optional(string, "default")
-        private_dns_zone_resource_ids           = optional(set(string), [])
-        application_security_group_associations = optional(map(string), {})
-        private_service_connection_name         = optional(string, null)
-        network_interface_name                  = optional(string, null)
-        location                                = optional(string, null)
-        resource_group_name                     = optional(string, null)
-        ip_configurations = optional(map(object({
-          name               = string
-          private_ip_address = string
-        })), {})
-      })), {})
-    }))
+      storage_account = optional(object({
+        enabled                                 = optional(bool, false)
+        private_endpoints_manage_dns_zone_group = optional(bool, true)
+        public_network_access_enabled           = optional(bool, false)
+        network_rules = optional(object({
+          bypass                     = optional(list(string), [])
+          default_action             = optional(string, "Deny")
+          ip_rules                   = optional(list(string), [])
+          virtual_network_subnet_ids = optional(list(string), [])
+        }), {})
+        private_endpoints = optional(map(object({
+          name                                    = optional(string, null)
+          tags                                    = optional(map(string), null)
+          subnet_resource_id                      = string
+          subresource_name                        = string
+          private_dns_zone_group_name             = optional(string, "default")
+          private_dns_zone_resource_ids           = optional(set(string), [])
+          application_security_group_associations = optional(map(string), {})
+          private_service_connection_name         = optional(string, null)
+          network_interface_name                  = optional(string, null)
+          location                                = optional(string, null)
+          resource_group_name                     = optional(string, null)
+          ip_configurations = optional(map(object({
+            name               = string
+            private_ip_address = string
+          })), {})
+        })))
+      }), {})
+    }), {})
   })
   default  = {}
   nullable = false
@@ -313,6 +335,20 @@ variable "patching" {
   })
   nullable = false
   default  = {}
+}
+
+# TODO update this to more generic alerts we want to include, for now this should be enough
+variable "service_health" {
+  type = object({
+    enabled = optional(bool, false)
+    config = optional(object({
+      email_receivers = optional(map(object({
+        name          = string
+        email_address = string
+      })), {})
+    }), {})
+  })
+  default = {}
 }
 
 variable "container_registry" {
@@ -335,6 +371,7 @@ variable "container_registry" {
         name                                    = optional(string, null)
         tags                                    = optional(map(string), null)
         subnet_resource_id                      = string
+        subresource_name                        = string
         private_dns_zone_group_name             = optional(string, "default")
         private_dns_zone_resource_ids           = optional(set(string), [])
         application_security_group_associations = optional(map(string), {})

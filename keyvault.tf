@@ -16,7 +16,7 @@ module "keyvault" {
   tenant_id        = data.azurerm_client_config.current.tenant_id
 
   public_network_access_enabled = var.key_vault.config.public_network_access_enabled
-  network_acls                  = var.key_vault.config.network_acls
+  network_acls                  = var.key_vault.config.network_rules
 
   enabled_for_disk_encryption     = var.key_vault.config.disk_encryption_set_enabled
   enabled_for_deployment          = var.key_vault.config.enabled_for_deployment

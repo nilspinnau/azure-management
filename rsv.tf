@@ -128,7 +128,7 @@ resource "azurerm_automation_account" "default" {
 resource "azurerm_role_assignment" "storage_blob_contributor" {
   for_each = { for k, principal in var.recovery_vault.config.storage_account.other_vault_principals : k => principal.id if var.recovery_vault.enabled == true }
 
-  scope                = azurerm_storage_account.staging.0.id
+  scope                = module.staging_storage.0.id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = each.value
 }
@@ -136,7 +136,7 @@ resource "azurerm_role_assignment" "storage_blob_contributor" {
 resource "azurerm_role_assignment" "storage_contributor" {
   for_each = { for k, principal in var.recovery_vault.config.storage_account.other_vault_principals : k => principal.id if var.recovery_vault.enabled == true }
 
-  scope                = azurerm_storage_account.staging.0.id
+  scope                = module.staging_storage.0.id
   role_definition_name = "Contributor"
   principal_id         = each.value
 }
@@ -163,7 +163,7 @@ resource "azurerm_role_assignment" "backup_mgmt_service_keyvault" {
 resource "azurerm_role_assignment" "backup_mgmt_service_staging_account" {
   count = var.recovery_vault.enabled == true ? 1 : 0
 
-  scope                = azurerm_storage_account.staging.0.id
+  scope                = module.staging_storage.0.id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = data.azuread_service_principal.backup_mgmt_serv.0.object_id
 }
@@ -213,7 +213,7 @@ resource "azurerm_private_endpoint" "this" {
   private_service_connection {
     is_manual_connection           = false
     name                           = coalesce(each.value.private_service_connection_name, "pse-${each.value.subresource_name}-rsv-${var.resource_suffix}")
-    private_connection_resource_id = azurerm_storage_account.default.id
+    private_connection_resource_id = module.staging_storage.0.id
     subresource_names              = [each.value.subresource_name] # can anyways only be ever one
   }
   dynamic "ip_configuration" {
@@ -250,7 +250,7 @@ resource "azurerm_private_endpoint" "this_unmanaged_dns_zone_groups" {
   private_service_connection {
     is_manual_connection           = false
     name                           = coalesce(each.value.private_service_connection_name, "pse-${each.value.subresource_name}-rsv-${var.resource_suffix}")
-    private_connection_resource_id = azurerm_storage_account.default.id
+    private_connection_resource_id = module.staging_storage.0.id
     subresource_names              = [each.value.subresource_name]
   }
   dynamic "ip_configuration" {
@@ -273,17 +273,16 @@ module "staging_storage" {
 
   name                = "stgarsv"
   resource_group_name = var.resource_group_name
-  resource_postfix    = var.resource_postfix
-
-  location = var.location
+  resource_suffix     = var.resource_suffix
+  location            = var.location
 
   private_endpoints = var.recovery_vault.config.storage_account.private_endpoints
 
   private_endpoints_manage_dns_zone_group = true
 
   public_access = {
-    enabled       = var.recovery_vault.config.storage_account.public_access.enabled
-    network_rules = var.recovery_vault.config.storage_account.public_access.network_rules
+    enabled       = var.recovery_vault.config.storage_account.public_network_access_enabled
+    network_rules = var.recovery_vault.config.storage_account.network_rules
   }
 
   file_shares     = []
