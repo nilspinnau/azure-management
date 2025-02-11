@@ -301,7 +301,7 @@ module "staging_storage" {
   enable_point_in_time_restore         = false
   enable_versioning                    = false
 
-  queue_retention_policy_days = null
+  queue_retention_policy_days      = null
   share_soft_delete_retention_days = null
 
   enable_advanced_threat_protection = false
