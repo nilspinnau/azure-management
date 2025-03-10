@@ -40,13 +40,8 @@ resource "azurerm_container_registry" "default" {
 
   zone_redundancy_enabled = var.container_registry.zone_redundancy_enabled
 
-  trust_policy = [{
-    enabled = false
-  }]
-  retention_policy = [{
-    days    = 30
-    enabled = true
-  }]
+  retention_policy_in_days = var.container_registry.retention_policy_in_days
+  trust_policy_enabled     = var.container_registry.trust_policy_enabled
 
   tags = var.tags
 }

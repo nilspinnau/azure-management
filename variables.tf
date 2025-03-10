@@ -334,6 +334,8 @@ variable "container_registry" {
     data_endpoint_enabled     = optional(bool, false)
     export_policy_enabled     = optional(bool, false)
     admin_enabled             = optional(bool, false)
+    retention_policy_in_days  = optional(number, 30)
+    trust_policy_enabled      = optional(bool, false)
     diagnostic_settings = optional(object({
       enabled      = optional(bool, false)
       workspace_id = optional(string, "")
