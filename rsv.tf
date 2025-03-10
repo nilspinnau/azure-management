@@ -148,14 +148,19 @@ data "azuread_service_principal" "backup_mgmt_serv" {
 }
 
 
-locals {
-  bms_key_vault_role_assignments = concat(var.recovery_vault.config.disk_encryption.other_key_vault_ids, var.recovery_vault.config.disk_encryption.local_key_vault_enabled == true && var.key_vault.enabled == true ? [module.keyvault.0.resource_id] : [])
+resource "azurerm_role_assignment" "backup_mgmt_service_keyvault" {
+  count = var.recovery_vault.enabled == true ? length(var.recovery_vault.config.disk_encryption.other_key_vault_ids) : 0
+
+  scope                = var.recovery_vault.config.disk_encryption.other_key_vault_ids[count.index]
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = data.azuread_service_principal.backup_mgmt_serv.0.object_id
 }
 
-resource "azurerm_role_assignment" "backup_mgmt_service_keyvault" {
-  count = var.recovery_vault.enabled == true ? length(local.bms_key_vault_role_assignments) : 0
 
-  scope                = local.bms_key_vault_role_assignments[count.index]
+resource "azurerm_role_assignment" "bms_kv_local" {
+  count = var.recovery_vault.enabled == true && var.key_vault != null && var.recovery_vault.config.disk_encryption.local_key_vault_enabled == true ? 1 : 0
+
+  scope                = azurerm_key_vault.default.0.id
   role_definition_name = "Key Vault Secrets Officer"
   principal_id         = data.azuread_service_principal.backup_mgmt_serv.0.object_id
 }
@@ -173,32 +178,32 @@ resource "azurerm_role_assignment" "backup_mgmt_service_staging_account" {
 # Diagnostics
 
 
-data "azurerm_monitor_diagnostic_categories" "rsv" {
-  count = var.recovery_vault.enabled == true && var.recovery_vault.config.diagnostic_settings.enabled == true ? 1 : 0
+# data "azurerm_monitor_diagnostic_categories" "rsv" {
+#   count = var.recovery_vault.enabled == true && var.recovery_vault.config.diagnostic_settings.enabled == true ? 1 : 0
 
-  resource_id = azurerm_recovery_services_vault.default.0.id
-}
+#   resource_id = azurerm_recovery_services_vault.default.0.id
+# }
 
 
-locals {
-  bcdr_diagnostics_workspace_id = try(coalesce(var.recovery_vault.config.diagnostic_settings.workspace_id, try(azurerm_log_analytics_workspace.default.0.id, null)), null)
-}
+# locals {
+#   bcdr_diagnostics_workspace_id = try(coalesce(var.recovery_vault.config.diagnostic_settings.workspace_id, try(azurerm_log_analytics_workspace.default.0.id, null)), null)
+# }
 
-resource "azurerm_monitor_diagnostic_setting" "rsv" {
-  count = var.recovery_vault.enabled == true && var.recovery_vault.config.diagnostic_settings.enabled == true ? 1 : 0
+# resource "azurerm_monitor_diagnostic_setting" "rsv" {
+#   count = var.recovery_vault.enabled == true && var.recovery_vault.config.diagnostic_settings.enabled == true ? 1 : 0
 
-  name                           = "mondiag-${basename(local.bcdr_diagnostics_workspace_id)}"
-  target_resource_id             = azurerm_recovery_services_vault.default.0.id
-  log_analytics_destination_type = "Dedicated"
-  log_analytics_workspace_id     = local.bcdr_diagnostics_workspace_id
+#   name                           = "mondiag-${basename(local.bcdr_diagnostics_workspace_id)}"
+#   target_resource_id             = azurerm_recovery_services_vault.default.0.id
+#   log_analytics_destination_type = "Dedicated"
+#   log_analytics_workspace_id     = local.bcdr_diagnostics_workspace_id
 
-  dynamic "enabled_log" {
-    for_each = data.azurerm_monitor_diagnostic_categories.rsv.0.log_category_types
-    content {
-      category = enabled_log.value
-    }
-  }
-}
+#   dynamic "enabled_log" {
+#     for_each = data.azurerm_monitor_diagnostic_categories.rsv.0.log_category_types
+#     content {
+#       category = enabled_log.value
+#     }
+#   }
+# }
 # The PE resource when we are managing the private_dns_zone_group block:
 resource "azurerm_private_endpoint" "this" {
   for_each = { for k, v in var.recovery_vault.config.private_endpoints : k => v if var.recovery_vault.config.private_endpoints_manage_dns_zone_group }

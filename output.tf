@@ -28,7 +28,11 @@ output "backup_services_vault" {
 }
 
 output "key_vault" {
-  value = try(module.keyvault.0, null)
+  value = var.key_vault != null ? {
+    resource_id         = azurerm_key_vault.default.0.id
+    vault_name          = azurerm_key_vault.default.0.name
+    resource_group_name = azurerm_key_vault.default.0.resource_group_name
+  } : null
 }
 
 
@@ -41,7 +45,7 @@ output "image_registry" {
 
 
 output "disk_encryption_set" {
-  value = var.key_vault.enabled == true && var.key_vault.config.disk_encryption_set_enabled == true ? {
+  value = var.key_vault != null && try(var.key_vault.disk_encryption_set_enabled, false) == true ? {
     resource_id = azurerm_disk_encryption_set.default.0.id
     name        = azurerm_disk_encryption_set.default.0.name
   } : null
@@ -53,7 +57,10 @@ output "dns" {
 }
 
 output "container_registry" {
-  value = try(module.container_registry, null)
+  value = var.container_registry != null ? {
+    resource_id = azurerm_container_registry.default.0.id
+    name        = azurerm_container_registry.default.0.name
+  } : null
 }
 
 

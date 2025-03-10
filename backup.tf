@@ -85,31 +85,31 @@ resource "azurerm_data_protection_backup_policy_blob_storage" "default" {
 
 
 
-locals {
-  backup_vault_diagnostics_workspace_id = try(coalesce(var.backup_vault.config.diagnostic_settings.workspace_id, try(azurerm_log_analytics_workspace.default.0.id, null)), null)
-}
+# locals {
+#   backup_vault_diagnostics_workspace_id = try(coalesce(var.backup_vault.config.diagnostic_settings.workspace_id, try(azurerm_log_analytics_workspace.default.0.id, null)), null)
+# }
 
 
-data "azurerm_monitor_diagnostic_categories" "backup_vault" {
-  count = var.backup_vault.enabled == true && var.backup_vault.config.diagnostic_settings.enabled == true ? 1 : 0
+# data "azurerm_monitor_diagnostic_categories" "backup_vault" {
+#   count = var.backup_vault.enabled == true && var.backup_vault.config.diagnostic_settings.enabled == true ? 1 : 0
 
-  resource_id = azurerm_data_protection_backup_vault.default.0.id
-}
+#   resource_id = azurerm_data_protection_backup_vault.default.0.id
+# }
 
-resource "azurerm_monitor_diagnostic_setting" "backup_vault" {
-  count = var.backup_vault.enabled == true && var.backup_vault.config.diagnostic_settings.enabled == true ? 1 : 0
+# resource "azurerm_monitor_diagnostic_setting" "backup_vault" {
+#   count = var.backup_vault.enabled == true && var.backup_vault.config.diagnostic_settings.enabled == true ? 1 : 0
 
-  name                           = "mondiag-${basename(local.backup_vault_diagnostics_workspace_id)}"
-  target_resource_id             = azurerm_data_protection_backup_vault.default.0.id
-  log_analytics_destination_type = "Dedicated"
-  log_analytics_workspace_id     = local.backup_vault_diagnostics_workspace_id
+#   name                           = "mondiag-${basename(local.backup_vault_diagnostics_workspace_id)}"
+#   target_resource_id             = azurerm_data_protection_backup_vault.default.0.id
+#   log_analytics_destination_type = "Dedicated"
+#   log_analytics_workspace_id     = local.backup_vault_diagnostics_workspace_id
 
-  dynamic "enabled_log" {
-    for_each = data.azurerm_monitor_diagnostic_categories.backup_vault.0.log_category_types
-    content {
-      category = enabled_log.value
-    }
-  }
-}
+#   dynamic "enabled_log" {
+#     for_each = data.azurerm_monitor_diagnostic_categories.backup_vault.0.log_category_types
+#     content {
+#       category = enabled_log.value
+#     }
+#   }
+# }
 
 

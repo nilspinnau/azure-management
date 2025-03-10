@@ -216,77 +216,42 @@ variable "recovery_vault" {
 
 variable "key_vault" {
   type = object({
-    enabled = optional(bool, false)
-    config = optional(object({
-      public_network_access_enabled   = optional(bool, false)
-      sku_name                        = optional(string, "standard")
-      enabled_for_deployment          = optional(bool, false)
-      enabled_for_template_deployment = optional(bool, false)
-      disk_encryption_set_enabled     = optional(bool, true)
-      purge_protection_enabled        = optional(bool, true)
-      soft_delete_retention_days      = optional(number, 7)
-      diagnostic_settings = optional(object({
-        enabled      = optional(bool, false)
-        workspace_id = optional(string, "")
-      }), {})
-      keys = optional(map(object({
-        name     = string
-        key_type = string
-        key_opts = optional(list(string), ["sign", "verify"])
-
-        key_size        = optional(number, null)
-        curve           = optional(string, null)
-        not_before_date = optional(string, null)
-        expiration_date = optional(string, null)
-        tags            = optional(map(any), null)
-
-        role_assignments = optional(map(object({
-          role_definition_id_or_name             = string
-          principal_id                           = string
-          description                            = optional(string, null)
-          skip_service_principal_aad_check       = optional(bool, false)
-          condition                              = optional(string, null)
-          condition_version                      = optional(string, null)
-          delegated_managed_identity_resource_id = optional(string, null)
-          principal_type                         = optional(string, null)
-        })), {})
-
-        rotation_policy = optional(object({
-          automatic = optional(object({
-            time_after_creation = optional(string, null)
-            time_before_expiry  = optional(string, null)
-          }), null)
-          expire_after         = optional(string, null)
-          notify_before_expiry = optional(string, null)
-        }), null)
-      })), {})
-      network_rules = optional(object({
-        bypass                     = optional(string, "None")
-        default_action             = optional(string, "Deny")
-        ip_rules                   = optional(list(string), [])
-        virtual_network_subnet_ids = optional(list(string), [])
-      }), {})
-      private_endpoints_manage_dns_zone_group = optional(bool, true)
-      private_endpoints = optional(map(object({
-        name                                    = optional(string, null)
-        tags                                    = optional(map(string), null)
-        subnet_resource_id                      = string
-        subresource_name                        = string
-        private_dns_zone_group_name             = optional(string, "default")
-        private_dns_zone_resource_ids           = optional(set(string), [])
-        application_security_group_associations = optional(map(string), {})
-        private_service_connection_name         = optional(string, null)
-        network_interface_name                  = optional(string, null)
-        location                                = optional(string, null)
-        resource_group_name                     = optional(string, null)
-        ip_configurations = optional(map(object({
-          name               = string
-          private_ip_address = string
-        })), {})
-      })), {})
+    public_network_access_enabled   = optional(bool, false)
+    sku_name                        = optional(string, "standard")
+    enabled_for_deployment          = optional(bool, false)
+    enabled_for_template_deployment = optional(bool, false)
+    disk_encryption_set_enabled     = optional(bool, true)
+    purge_protection_enabled        = optional(bool, true)
+    soft_delete_retention_days      = optional(number, 7)
+    diagnostic_settings = optional(object({
+      enabled      = optional(bool, false)
+      workspace_id = optional(string, "")
     }), {})
+    network_acls = optional(object({
+      bypass                     = optional(string, "None")
+      default_action             = optional(string, "Deny")
+      ip_rules                   = optional(list(string), [])
+      virtual_network_subnet_ids = optional(list(string), [])
+    }), {})
+    private_endpoints_manage_dns_zone_group = optional(bool, true)
+    private_endpoints = optional(map(object({
+      name                                    = optional(string, null)
+      tags                                    = optional(map(string), null)
+      subnet_resource_id                      = string
+      subresource_name                        = string
+      private_dns_zone_group_name             = optional(string, "default")
+      private_dns_zone_resource_ids           = optional(set(string), [])
+      application_security_group_associations = optional(map(string), {})
+      private_service_connection_name         = optional(string, null)
+      network_interface_name                  = optional(string, null)
+      location                                = optional(string, null)
+      resource_group_name                     = optional(string, null)
+      ip_configurations = optional(map(object({
+        name               = string
+        private_ip_address = string
+      })), {})
+    })), {})
   })
-  default  = {}
   nullable = false
 }
 
@@ -355,41 +320,43 @@ variable "service_health" {
 
 variable "container_registry" {
   type = object({
-    enabled = optional(bool, false)
-    config = optional(object({
-      sku                           = optional(string, "Basic")
-      public_network_access_enabled = optional(bool, false)
-      georeplications = optional(list(object({
-        location                  = string
-        regional_endpoint_enabled = optional(bool, false)
-        tags                      = optional(map(any), {})
-        zone_redundancy_enabled   = optional(bool, true)
-      })), [])
-      diagnostic_settings = optional(object({
-        enabled      = optional(bool, false)
-        workspace_id = optional(string, "")
-      }), {})
-      private_endpoints_manage_dns_zone_group = optional(bool, true)
-      private_endpoints = optional(map(object({
-        name                                    = optional(string, null)
-        tags                                    = optional(map(string), null)
-        subnet_resource_id                      = string
-        subresource_name                        = string
-        private_dns_zone_group_name             = optional(string, "default")
-        private_dns_zone_resource_ids           = optional(set(string), [])
-        application_security_group_associations = optional(map(string), {})
-        private_service_connection_name         = optional(string, null)
-        network_interface_name                  = optional(string, null)
-        location                                = optional(string, null)
-        resource_group_name                     = optional(string, null)
-        ip_configurations = optional(map(object({
-          name               = string
-          private_ip_address = string
-        })), {})
-      })), {})
+    sku                           = optional(string, "Basic")
+    public_network_access_enabled = optional(bool, false)
+    network_rule_bypass_option    = optional(string, "None")
+    georeplications = optional(list(object({
+      location                  = string
+      regional_endpoint_enabled = optional(bool, false)
+      tags                      = optional(map(any), {})
+      zone_redundancy_enabled   = optional(bool, true)
+    })), [])
+    zone_redundancy_enabled   = optional(bool, true)
+    quarantine_policy_enabled = optional(bool, false)
+    data_endpoint_enabled     = optional(bool, false)
+    export_policy_enabled     = optional(bool, false)
+    admin_enabled             = optional(bool, false)
+    diagnostic_settings = optional(object({
+      enabled      = optional(bool, false)
+      workspace_id = optional(string, "")
     }), {})
+    private_endpoints_manage_dns_zone_group = optional(bool, false)
+    private_endpoints = optional(map(object({
+      name                                    = optional(string, null)
+      tags                                    = optional(map(string), null)
+      subnet_resource_id                      = string
+      subresource_name                        = string
+      private_dns_zone_group_name             = optional(string, "default")
+      private_dns_zone_resource_ids           = optional(set(string), [])
+      application_security_group_associations = optional(map(string), {})
+      private_service_connection_name         = optional(string, null)
+      network_interface_name                  = optional(string, null)
+      location                                = optional(string, null)
+      resource_group_name                     = optional(string, null)
+      ip_configurations = optional(map(object({
+        name               = string
+        private_ip_address = string
+      })), {})
+    })), {})
   })
-  default  = {}
   nullable = false
 }
 
