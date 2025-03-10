@@ -360,32 +360,6 @@ variable "container_registry" {
   nullable = false
 }
 
-variable "dns" {
-  type = object({
-    enabled = optional(bool, false)
-    config = optional(object({
-      zones = list(object({
-        name = string
-        virtual_network_links = list(object({
-          vnetid           = string
-          vnetlinkname     = string
-          autoregistration = optional(bool, false)
-          tags             = map(any)
-        }))
-      }))
-      diagnostic_settings = optional(object({
-        enabled      = optional(bool, false)
-        workspace_id = optional(string, "")
-      }), {})
-      }), {
-      zones = []
-    })
-  })
-  default  = {}
-  nullable = false
-}
-
-
 variable "automanage" {
   type = object({
     enabled = optional(bool, false)
