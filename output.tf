@@ -51,11 +51,6 @@ output "disk_encryption_set" {
   } : null
 }
 
-
-output "dns" {
-  value = { for dns in module.dns : dns.name => dns }
-}
-
 output "container_registry" {
   value = var.container_registry != null ? {
     resource_id = azurerm_container_registry.default.0.id
