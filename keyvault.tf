@@ -59,7 +59,7 @@ resource "azurerm_disk_encryption_set" "default" {
   location            = var.location
 
 
-  key_vault_key_id          = azurerm_key_vault_key.cmk[0].id
+  key_vault_key_id          = azurerm_key_vault_key.cmk[0].versionless_id
   auto_key_rotation_enabled = true
 
   encryption_type = "EncryptionAtRestWithPlatformAndCustomerKeys"
