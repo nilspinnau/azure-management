@@ -37,25 +37,25 @@ output "key_vault" {
 
 
 output "image_registry" {
-  value = var.shared_image_gallery.enabled == true ? {
-    resource_id = azurerm_shared_image_gallery.default.0.id
-    name        = azurerm_shared_image_gallery.default.0.unique_name
-  } : null
+  value = {
+    resource_id = try(azurerm_shared_image_gallery.default.0.id, null)
+    name        = try(azurerm_shared_image_gallery.default.0.unique_name, null)
+  }
 }
 
 
 output "disk_encryption_set" {
-  value = var.key_vault != null && try(var.key_vault.disk_encryption_set_enabled, false) == true ? {
-    resource_id = azurerm_disk_encryption_set.default.0.id
-    name        = azurerm_disk_encryption_set.default.0.name
-  } : null
+  value = {
+    resource_id = try(azurerm_disk_encryption_set.default.0.id, null)
+    name        = try(azurerm_disk_encryption_set.default.0.name, null)
+  }
 }
 
 output "container_registry" {
-  value = var.container_registry != null ? {
-    resource_id = azurerm_container_registry.default.0.id
-    name        = azurerm_container_registry.default.0.name
-  } : null
+  value = {
+    resource_id = try(azurerm_container_registry.default.0.id, null)
+    name        = try(azurerm_container_registry.default.0.name, null)
+  }
 }
 
 
