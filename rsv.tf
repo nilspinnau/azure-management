@@ -310,7 +310,7 @@ module "staging_storage" {
   share_soft_delete_retention_days = null
 
   enable_advanced_threat_protection = false
-  enable_sas_key                    = true
+  enable_sas_key                    = false
   min_tls_version                   = "TLS1_2"
 
   data_lake_gen_2 = {
