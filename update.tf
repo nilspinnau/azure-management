@@ -48,10 +48,10 @@ resource "azurerm_maintenance_configuration" "default" {
   tags = var.tags
 }
 
-resource "azurerm_maintenance_assignment_dynamic_scope" "example" {
+resource "azurerm_maintenance_assignment_dynamic_scope" "default" {
   count = var.patching.enabled == true && var.patching.dynamic_scope != null ? 1 : 0
 
-  name                         = "all"
+  name                         = "patching-dynamic-scope-${var.resource_suffix}"
   maintenance_configuration_id = azurerm_maintenance_configuration.default.0.id
 
   filter {
