@@ -95,7 +95,7 @@ output "shared_image_gallery" {
 
 
 
-output "automation_account" {
+output "automation" {
   value = var.automation.enabled == true || var.recovery_vault.config.automation_account.enabled == true ? {
     resource_id  = try(azurerm_automation_account.default.0.id, null)
     name         = try(azurerm_automation_account.default.0.name, null)
