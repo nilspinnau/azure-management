@@ -79,8 +79,9 @@ output "monitoring" {
 output "patching" {
   value = {
     schedule = {
-      name = try(azurerm_maintenance_configuration.default.0.name, null)
-      id   = try(azurerm_maintenance_configuration.default.0.id, null)
+      name             = try(azurerm_maintenance_configuration.default.0.name, null)
+      id               = try(azurerm_maintenance_configuration.default.0.id, null)
+      is_dynamic_scope = var.patching.dynamic_scope != null
     }
   }
 }
