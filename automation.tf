@@ -19,6 +19,22 @@ resource "azurerm_automation_account" "default" {
   tags = var.tags
 }
 
+resource "azurerm_automation_runbook" "default" {
+  for_each = { for k, v in var.automation.runbooks : k => v if v.enabled == true }
+
+  automation_account_name = azurerm_automation_account.default.0.name
+  resource_group_name     = var.resource_group_name
+  location                = coalesce(each.value.location, var.location)
+
+  name         = each.key
+  content      = each.value.content
+  log_verbose  = each.value.log_verbose
+  log_progress = each.value.log_progress
+  runbook_type = each.value.runbook_type
+
+  tags = var.tags
+}
+
 
 resource "azurerm_automation_variable_string" "default" {
   for_each = { for k, v in var.automation.variables : k => v if v.type == "string" }

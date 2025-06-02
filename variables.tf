@@ -379,6 +379,20 @@ variable "automation" {
     enabled                       = optional(bool, false)
     public_network_access_enabled = optional(bool, false)
 
+    runbooks = optional(map(object({
+      name         = string
+      location     = optional(string, null)
+      description  = optional(string, null)
+      content      = string
+      log_verbose  = optional(bool, false)
+      log_progress = optional(bool, false)
+      runbook_type = optional(string, "PowerShell")
+      parameters = optional(map(object({
+        type    = string
+        default = any
+      })), {})
+    })), {})
+
     variables = optional(map(object({
       type  = optional(string, null)
       value = any
