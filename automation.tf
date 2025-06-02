@@ -20,7 +20,7 @@ resource "azurerm_automation_account" "default" {
 }
 
 resource "azurerm_automation_runbook" "default" {
-  for_each = { for k, v in var.automation.runbooks : k => v if v.enabled == true }
+  for_each = { for k, v in var.automation.runbooks : k => v }
 
   automation_account_name = azurerm_automation_account.default.0.name
   resource_group_name     = var.resource_group_name
