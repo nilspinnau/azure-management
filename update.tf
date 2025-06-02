@@ -47,3 +47,25 @@ resource "azurerm_maintenance_configuration" "default" {
 
   tags = var.tags
 }
+
+resource "azurerm_maintenance_assignment_dynamic_scope" "example" {
+  count = var.patching.enabled == true && var.patching.dynamic_scope != null ? 1 : 0
+
+  name                         = "all"
+  maintenance_configuration_id = azurerm_maintenance_configuration.default.0.id
+
+  filter {
+    locations       = var.patching.dynamic_scope.locations
+    os_types        = var.patching.dynamic_scope.os_types
+    resource_groups = var.patching.dynamic_scope.resource_groups
+    resource_types  = var.patching.dynamic_scope.resource_types
+    tag_filter      = var.patching.dynamic_scope.tag_filter
+    dynamic "tags" {
+      for_each = var.patching.dynamic_scope.tags
+      content {
+        tag    = tags.value.tag
+        values = tags.value.values
+      }
+    }
+  }
+}

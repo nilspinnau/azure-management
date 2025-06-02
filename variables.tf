@@ -296,9 +296,14 @@ variable "monitoring" {
 variable "patching" {
   type = object({
     enabled = optional(bool, false)
-    config = optional(object({
-
-    }), {})
+    dynamic_scope = optional(object({
+      locations       = optional(set(string), [])
+      tags            = optional(map(set(string)), {})
+      tag_filter      = optional(string, "Any")
+      os_types        = optional(set(string), ["Windows", "Linux"])
+      resource_groups = optional(set(string), [])
+      resource_types  = optional(set(string), ["Microsoft.Compute/virtualMachines", "Microsoft.HybridCompute/machines"])
+    }), null)
   })
   nullable = false
   default  = {}
