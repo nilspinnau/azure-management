@@ -35,7 +35,7 @@ module "monitor_storage" {
     network_rules = var.monitoring.config.storage_account.network_rules
   }
 
-  file_shares     = []
+  file_shares     = {}
   containers_list = []
 
   access_tier              = "Hot"

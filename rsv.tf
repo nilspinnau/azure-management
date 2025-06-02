@@ -290,7 +290,7 @@ module "staging_storage" {
     network_rules = var.recovery_vault.config.storage_account.network_rules
   }
 
-  file_shares     = []
+  file_shares     = {}
   containers_list = []
 
   access_tier              = "Cool"
