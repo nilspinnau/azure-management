@@ -92,3 +92,13 @@ output "shared_image_gallery" {
     name        = azurerm_shared_image_gallery.default.0.name
   } : null
 }
+
+
+
+output "automation_account" {
+  value = var.automation.enabled == true || var.recovery_vault.config.automation_account.enabled == true ? {
+    resource_id  = try(azurerm_automation_account.default.0.id, null)
+    name         = try(azurerm_automation_account.default.0.name, null)
+    principal_id = try(azurerm_automation_account.default.0.identity.0.principal_id, null)
+  } : null
+}
