@@ -94,33 +94,6 @@ resource "azurerm_backup_policy_vm" "default" {
   }
 }
 
-
-# automation account for recovery runbooks and automatic extension updates
-resource "azurerm_role_assignment" "aa_contributor" {
-  count = var.recovery_vault.enabled == true && var.recovery_vault.config.automation_account.enabled == true ? 1 : 0
-
-  scope                = azurerm_automation_account.default.0.id
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_recovery_services_vault.default.0.identity.0.principal_id
-}
-
-resource "azurerm_automation_account" "default" {
-  count = var.recovery_vault.enabled == true && var.recovery_vault.config.automation_account.enabled == true ? 1 : 0
-
-  name                = "aa-${var.resource_suffix}"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-
-  public_network_access_enabled = true
-  local_authentication_enabled  = false
-  sku_name                      = "Basic"
-
-  identity {
-    type = "SystemAssigned"
-  }
-}
-
-
 ############
 # Key vault Disk Encryption
 
