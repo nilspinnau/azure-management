@@ -88,7 +88,7 @@ output "patching" {
   value = var.patching.enabled == true ? {
     # if we do not configure custom, use the azure best practices
     schedule_name = azurerm_maintenance_configuration.default.0.name
-    schedule_id   = azurerm_maintenance_configuration.default.0.name
+    schedule_id   = azurerm_maintenance_configuration.default.0.id
   } : null
 }
 
