@@ -378,6 +378,12 @@ variable "automation" {
   type = object({
     enabled                       = optional(bool, false)
     public_network_access_enabled = optional(bool, false)
+
+    variables = optional(map(object({
+      type  = optional(string, null)
+      value = any
+    })), {})
+
     private_endpoints = optional(map(object({
       name                                    = optional(string, null)
       tags                                    = optional(map(string), null)

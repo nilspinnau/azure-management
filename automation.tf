@@ -20,6 +20,35 @@ resource "azurerm_automation_account" "default" {
 }
 
 
+resource "azurerm_automation_variable_string" "default" {
+  for_each = { for k, v in var.automation.variables : k => v if v.type == "string" }
+
+  automation_account_name = azurerm_automation_account.default.0.name
+  resource_group_name     = var.resource_group_name
+
+  name  = each.key
+  value = each.value.value
+}
+
+resource "azurerm_automation_variable_bool" "default" {
+  for_each = { for k, v in var.automation.variables : k => v if v.type == "bool" }
+
+  automation_account_name = azurerm_automation_account.default.0.name
+  resource_group_name     = var.resource_group_name
+
+  name  = each.key
+  value = each.value.value
+}
+resource "azurerm_automation_variable_int" "default" {
+  for_each = { for k, v in var.automation.variables : k => v if v.type == "int" }
+
+  automation_account_name = azurerm_automation_account.default.0.name
+  resource_group_name     = var.resource_group_name
+
+  name  = each.key
+  value = each.value.value
+}
+
 # automation account for recovery runbooks and automatic extension updates
 resource "azurerm_role_assignment" "aa_contributor" {
   count = var.recovery_vault.enabled == true && var.recovery_vault.config.automation_account.enabled == true ? 1 : 0
@@ -28,6 +57,8 @@ resource "azurerm_role_assignment" "aa_contributor" {
   role_definition_name = "Contributor"
   principal_id         = azurerm_recovery_services_vault.default.0.identity.0.principal_id
 }
+
+
 
 resource "azurerm_private_endpoint" "automation" {
   for_each = { for k, v in try(var.automation.private_endpoints, {}) : k => v }
