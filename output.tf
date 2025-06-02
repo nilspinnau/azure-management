@@ -76,20 +76,13 @@ output "monitoring" {
   sensitive = true
 }
 
-
-output "automanage" {
-  value = {
-    # if we do not configure custom, use the azure best practices
-    configuration_id = try(azapi_resource.automanage.0.id, "/providers/Microsoft.Automanage/bestPractices/AzureBestPracticesProduction")
-  }
-}
-
 output "patching" {
-  value = var.patching.enabled == true ? {
-    # if we do not configure custom, use the azure best practices
-    schedule_name = azurerm_maintenance_configuration.default.0.name
-    schedule_id   = azurerm_maintenance_configuration.default.0.id
-  } : null
+  value = {
+    schedule = {
+      name = try(azurerm_maintenance_configuration.default.0.name, null)
+      id   = try(azurerm_maintenance_configuration.default.0.id, null)
+    }
+  }
 }
 
 output "shared_image_gallery" {

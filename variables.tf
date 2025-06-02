@@ -362,29 +362,6 @@ variable "container_registry" {
   nullable = false
 }
 
-variable "automanage" {
-  type = object({
-    enabled = optional(bool, false)
-    config = optional(object({
-      custom_log_analytics_workspace = optional(bool, true)
-      enable_antimalware             = optional(bool, true)
-      enable_baseline_security       = optional(bool, true)
-      assignment_type                = optional(string, "ApplyAndMonitor") # "Audit", "ApplyAndAutoCorrect"
-      enable_backup                  = optional(bool, false)
-      enable_boot_diagnostics        = optional(bool, true)
-      enable_change_tracking         = optional(bool, true)
-      enable_defender                = optional(bool, true)
-      enable_log_analytics           = optional(bool, true)
-      enable_updatemanagement        = optional(bool, true)
-      enable_vminsights              = optional(bool, true)
-      enable_admin_center            = optional(bool, true)
-    }), {})
-  })
-  default = {
-    enabled = false
-  }
-}
-
 
 variable "exclude_workbooks" {
   type     = list(string)
