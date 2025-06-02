@@ -1,49 +1,49 @@
-
-locals {
-  schedule_name = var.patching.enabled == true ? "patch-${var.resource_suffix}" : ""
-}
-
-resource "azapi_resource" "update_configuration" {
+resource "azurerm_maintenance_configuration" "default" {
   count = var.patching.enabled == true ? 1 : 0
 
-  type      = "Microsoft.Maintenance/maintenanceConfigurations@2023-04-01"
-  name      = local.schedule_name
-  parent_id = var.resource_group_id
-  location  = var.location
+  name                = "patch-${var.resource_suffix}"
+  resource_group_name = var.resource_group_name
+  location            = var.location
 
-  body = {
-    properties = {
-      extensionProperties = {
-        InGuestPatchMode = "User"
-      }
-      installPatches = {
-        linuxParameters = {
-          classificationsToInclude = [
-            "Critical",
-            "Security"
-          ]
-          packageNameMasksToExclude = null
-          packageNameMasksToInclude = null
-        }
-        rebootSetting = "RebootIfRequired"
-        windowsParameters = {
-          classificationsToInclude = [
-            "Critical",
-            "Security",
-            "UpdateRollup"
-          ]
-          kbNumbersToExclude = null
-          kbNumbersToInclude = null
-        }
-      }
-      maintenanceScope = "InGuestPatch"
-      maintenanceWindow = {
-        duration           = "03:55"
-        recurEvery         = "1Month Second Tuesday Offset2"
-        startDateTime      = "2024-08-22 00:00"
-        timeZone           = "W. Europe Standard Time"
-        expirationDateTime = null
-      }
-    }
+  scope      = "InGuestPatch"
+  visibility = "Custom"
+
+  in_guest_user_patch_mode = "User"
+
+  window {
+    duration             = "04:00"
+    recur_every          = "1Month Second Tuesday Offset2"
+    start_date_time      = "2024-08-22 00:00"
+    time_zone            = "W. Europe Standard Time"
+    expiration_date_time = null
   }
+
+  install_patches {
+    linux {
+      classifications_to_include = [
+        "Critical",
+        "Security",
+        "Other"
+      ]
+      package_names_mask_to_exclude = null
+      package_names_mask_to_include = null
+    }
+    windows {
+      classifications_to_include = [
+        "Critical",
+        "Security",
+        "UpdateRollup",
+        "FeaturePack",
+        "ServicePack",
+        "Definition",
+        "Tools",
+        "Updates"
+      ]
+      kb_numbers_to_exclude = null
+      kb_numbers_to_include = null
+    }
+    reboot = "IfRequired"
+  }
+
+  tags = var.tags
 }

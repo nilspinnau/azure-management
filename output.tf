@@ -85,11 +85,11 @@ output "automanage" {
 }
 
 output "patching" {
-  value = {
+  value = var.patching.enabled == true ? {
     # if we do not configure custom, use the azure best practices
-    schedule_name = local.schedule_name
-    schedule_id   = var.patching.enabled ? azapi_resource.update_configuration.0.id : null
-  }
+    schedule_name = azurerm_maintenance_configuration.default.0.name
+    schedule_id   = azurerm_maintenance_configuration.default.0.name
+  } : null
 }
 
 output "shared_image_gallery" {
