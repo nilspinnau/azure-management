@@ -52,7 +52,8 @@ module "monitor_storage" {
   enable_versioning                    = false
 
   enable_advanced_threat_protection = false
-  enable_sas_key                    = false
+  # for perf diagnostics etc
+  enable_sas_key                    = true
   min_tls_version                   = "TLS1_2"
 
   data_lake_gen_2 = {
