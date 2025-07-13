@@ -144,7 +144,7 @@ module "functionapp" {
 
   }
   site_config = {
-
+    always_on = false
   }
 
   tags = var.tags
