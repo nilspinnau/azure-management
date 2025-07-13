@@ -148,7 +148,10 @@ module "functionapp" {
     id   = module.storage.0.id
   }
 
-  app_settings = {
+  app_settings = var.patching.events.zip_deploy_file != "" ? {
+    WEBSITE_RUN_FROM_PACKAGE = 1
+    SCM_DO_BUILD_DURING_DEPLOYMENT = true
+  } : {
 
   }
   site_config = {
