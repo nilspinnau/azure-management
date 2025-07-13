@@ -106,6 +106,9 @@ module "serviceplan" {
     os_type = "Linux"
     sku = "Y1"
   }
+
+  zone_redundant = false
+  tags = var.tags
 }
 
 module "storage" {
@@ -117,6 +120,8 @@ module "storage" {
   resource_group_name = var.resource_group_name
   resource_suffix     = var.resource_suffix
   location            = var.location
+
+  tags = var.tags
 }
 
 module "functionapp" {
@@ -141,4 +146,6 @@ module "functionapp" {
   site_config = {
 
   }
+
+  tags = var.tags
 }
