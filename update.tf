@@ -81,11 +81,14 @@ resource "azurerm_eventgrid_system_topic" "update" {
   topic_type = "Microsoft.Maintenance.MaintenanceConfigurations"
 }
 
-resource "azurerm_eventgrid_event_subscription" "update" {
+resource "azurerm_eventgrid_system_topic_event_subscription" "update" {
   count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
 
-  name  = "evhg-patching-event-subscription-${var.resource_suffix}"
-  scope = azurerm_eventgrid_system_topic.update.0.id
+  name  = "update"
+  resource_group_name = var.resource_group_name
+  system_topic = azurerm_eventgrid_system_topic.update.0.id
+
+  event_delivery_schema = "CloudEventSchemaV1_0"
 
   azure_function_endpoint {
     function_id = module.functionapp.0.id
