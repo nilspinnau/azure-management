@@ -304,7 +304,19 @@ variable "patching" {
       resource_groups = optional(set(string), [])
       resource_types  = optional(set(string), ["Microsoft.Compute/virtualMachines", "Microsoft.HybridCompute/machines"])
     }), null)
-    events_enabled = optional(bool, true)
+    events = optional(object({
+      enabled = optional(bool, true)
+      functions = optional(map(object({
+        name = string
+        files = optional(map(object({
+          content = optional(string, "")
+          path    = optional(string, "")
+        })), {})
+        language    = optional(string, "PowerShell")
+        config_json = optional(string, null)
+        enabled     = optional(bool, true)
+      })), {})
+    }), {})
   })
   nullable = false
   default  = {}

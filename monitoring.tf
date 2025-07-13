@@ -6,7 +6,7 @@ resource "azurerm_log_analytics_workspace" "default" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  local_authentication_disabled = true
+  local_authentication_enabled = false
 
   sku               = "PerGB2018"
   retention_in_days = 30

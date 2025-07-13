@@ -71,7 +71,7 @@ resource "azurerm_maintenance_assignment_dynamic_scope" "default" {
 }
 
 resource "azurerm_eventgrid_system_topic" "update" {
-  count = var.patching.enabled == true && var.patching.events_enabled == true ? 1 : 0
+  count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
 
   name  = "evhg-patching-event-subscription-${var.resource_suffix}"
   resource_group_name = var.resource_group_name
@@ -82,7 +82,7 @@ resource "azurerm_eventgrid_system_topic" "update" {
 }
 
 resource "azurerm_eventgrid_event_subscription" "update" {
-  count = var.patching.enabled == true && var.patching.events_enabled == true ? 1 : 0
+  count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
 
   name  = "evhg-patching-event-subscription-${var.resource_suffix}"
   scope = azurerm_eventgrid_system_topic.update.0.id
@@ -94,7 +94,7 @@ resource "azurerm_eventgrid_event_subscription" "update" {
 
 
 module "serviceplan" {
-  count = var.patching.enabled == true && var.patching.events_enabled == true ? 1 : 0
+  count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
 
   source = "github.com/nilspinnau/azure-modules.git/app-service"
 
@@ -112,7 +112,7 @@ module "serviceplan" {
 }
 
 module "storage" {
-  count = var.patching.enabled == true && var.patching.events_enabled == true ? 1 : 0
+  count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
 
   source = "github.com/nilspinnau/azure-modules.git/storage-account"
 
@@ -125,7 +125,7 @@ module "storage" {
 }
 
 module "functionapp" {
-  count = var.patching.enabled == true && var.patching.events_enabled == true ? 1 : 0
+  count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
 
   source = "github.com/nilspinnau/azure-modules.git/functionapp"
 
@@ -146,6 +146,8 @@ module "functionapp" {
   site_config = {
     always_on = false
   }
+
+  functions = var.patching.events.functions
 
   tags = var.tags
 }
