@@ -84,7 +84,7 @@ resource "azurerm_eventgrid_system_topic" "update" {
 resource "azurerm_eventgrid_system_topic_event_subscription" "update" {
   for_each = {
     for k, v in var.patching.events.event_subscriptions : k => v
-    if var.patching.enabled == true && 
+    if var.patching.enabled == true &&
     var.patching.events.enabled == true
   }
 
@@ -133,6 +133,12 @@ module "storage" {
   tags = var.tags
 }
 
+resource "azurerm_role_assignment" "update_storage_blob_owner" {
+  scope                = module.storage.0.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = module.functionapp.0.identity.0.principal_id
+}
+
 module "functionapp" {
   count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
 
@@ -150,7 +156,7 @@ module "functionapp" {
   }
 
   app_settings = {
-    WEBSITE_RUN_FROM_PACKAGE = 1
+    WEBSITE_RUN_FROM_PACKAGE       = 1
     SCM_DO_BUILD_DURING_DEPLOYMENT = true
   }
   site_config = {

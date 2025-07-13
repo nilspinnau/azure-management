@@ -305,14 +305,14 @@ variable "patching" {
       resource_types  = optional(set(string), ["Microsoft.Compute/virtualMachines", "Microsoft.HybridCompute/machines"])
     }), null)
     events = optional(object({
-      enabled = optional(bool, true)
+      enabled         = optional(bool, true)
       zip_deploy_file = optional(string, "")
       role_assignments = optional(map(object({
         role_definition_name = string
         scope                = string
       })), {})
       event_subscriptions = optional(map(object({
-        function_name       = string
+        function_name        = string
         included_event_types = optional(set(string), ["Microsoft.Maintenance.PostMaintenanceEvent"])
       })), {})
       # functions = optional(map(object({
