@@ -83,6 +83,12 @@ output "patching" {
       id               = try(azurerm_maintenance_configuration.default.0.id, null)
       is_dynamic_scope = var.patching.dynamic_scope != null
     }
+    function = {
+      resource_id     = try(module.functionapp.0.id, null)
+      name            = try(module.functionapp.0.name, null)
+      identity        = try(module.functionapp.0.identity, null)
+      service_plan_id = try(module.serviceplan.0.service_plan.id, null)
+    }
   }
 }
 
