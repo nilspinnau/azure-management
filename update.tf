@@ -164,7 +164,7 @@ resource "azurerm_role_assignment" "update" {
   for_each = {
     for k, v in var.patching.events.role_assignments : k => v
     if var.patching.enabled == true &&
-    var.patching.events.enabled == trust_policy_enabled
+    var.patching.events.enabled == true
   }
 
   role_definition_name = each.value.role_definition_name
