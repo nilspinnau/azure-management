@@ -155,7 +155,7 @@ module "functionapp" {
     always_on = false
   }
 
-  zip_deploy_path = var.patching.events.zip_deploy_path
+  zip_deploy_file = var.patching.events.zip_deploy_file
 
   functions = var.patching.events.functions
 

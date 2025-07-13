@@ -306,7 +306,7 @@ variable "patching" {
     }), null)
     events = optional(object({
       enabled = optional(bool, true)
-      zip_deploy_path = optional(string, "")
+      zip_deploy_file = optional(string, "")
       role_assignments = optional(map(object({
         role_definition_name = string
         scope                = string
