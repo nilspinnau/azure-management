@@ -311,16 +311,16 @@ variable "patching" {
         role_definition_name = string
         scope                = string
       })), {})
-      functions = optional(map(object({
-        name = string
-        files = optional(map(object({
-          content = optional(string, "")
-          path    = optional(string, "")
-        })), {})
-        language    = optional(string, "PowerShell")
-        config_json = optional(string, null)
-        enabled     = optional(bool, true)
-      })), {})
+      # functions = optional(map(object({
+      #   name = string
+      #   files = optional(map(object({
+      #     content = optional(string, "")
+      #     path    = optional(string, "")
+      #   })), {})
+      #   language    = optional(string, "PowerShell")
+      #   config_json = optional(string, null)
+      #   enabled     = optional(bool, true)
+      # })), {})
     }), {})
   })
   nullable = false

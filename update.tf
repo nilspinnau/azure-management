@@ -142,25 +142,21 @@ module "functionapp" {
   location            = var.location
 
   service_plan_id = module.serviceplan.0.service_plan.id
-  os_type         = "Linux"
+  os_type         = "Windows"
   storage_account = {
     name = module.storage.0.name
     id   = module.storage.0.id
   }
 
-  app_settings = var.patching.events.zip_deploy_file != "" ? {
+  app_settings = {
     WEBSITE_RUN_FROM_PACKAGE = 1
     SCM_DO_BUILD_DURING_DEPLOYMENT = true
-  } : {
-
   }
   site_config = {
     always_on = false
   }
 
   zip_deploy_file = var.patching.events.zip_deploy_file
-
-  functions = var.patching.events.functions
 
   tags = var.tags
 }
