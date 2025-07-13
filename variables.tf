@@ -304,6 +304,7 @@ variable "patching" {
       resource_groups = optional(set(string), [])
       resource_types  = optional(set(string), ["Microsoft.Compute/virtualMachines", "Microsoft.HybridCompute/machines"])
     }), null)
+    events_enabled = optional(bool, true)
   })
   nullable = false
   default  = {}
