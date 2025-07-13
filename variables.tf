@@ -306,6 +306,10 @@ variable "patching" {
     }), null)
     events = optional(object({
       enabled = optional(bool, true)
+      role_assignments = optional(map(object({
+        role_definition_name = string
+        scope                = string
+      })), {})
       functions = optional(map(object({
         name = string
         files = optional(map(object({

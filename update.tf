@@ -12,7 +12,7 @@ resource "azurerm_maintenance_configuration" "default" {
 
   window {
     duration             = "01:30"
-    recur_every          = "6Hour" # every 6 hours # "1Month Second Tuesday Offset2" # patch tuesday
+    recur_every          = "6Hour"            # every 6 hours # "1Month Second Tuesday Offset2" # patch tuesday
     start_date_time      = "2024-08-22 12:00" # "2024-08-22 00:00"
     time_zone            = "W. Europe Standard Time"
     expiration_date_time = null
@@ -73,26 +73,31 @@ resource "azurerm_maintenance_assignment_dynamic_scope" "default" {
 resource "azurerm_eventgrid_system_topic" "update" {
   count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
 
-  name  = "evhg-patching-event-subscription-${var.resource_suffix}"
+  name                = "evhg-patching-event-subscription-${var.resource_suffix}"
   resource_group_name = var.resource_group_name
-  location = var.location
+  location            = var.location
 
   source_arm_resource_id = azurerm_maintenance_configuration.default.0.id
-  topic_type = "Microsoft.Maintenance.MaintenanceConfigurations"
+  topic_type             = "Microsoft.Maintenance.MaintenanceConfigurations"
 }
 
 resource "azurerm_eventgrid_system_topic_event_subscription" "update" {
   count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
 
-  name  = "update"
+  name                = "update"
   resource_group_name = var.resource_group_name
-  system_topic = azurerm_eventgrid_system_topic.update.0.id
+  system_topic        = azurerm_eventgrid_system_topic.update.0.id
 
   event_delivery_schema = "CloudEventSchemaV1_0"
 
   azure_function_endpoint {
     function_id = module.functionapp.0.id
   }
+
+  included_event_types = [
+    "Microsoft.Maintenance.PostMaintenanceEvent",
+    "Microsoft.Maintenance.PreMaintenanceEvent",
+  ]
 }
 
 
@@ -107,11 +112,11 @@ module "serviceplan" {
 
   service_plan = {
     os_type = "Linux"
-    sku = "Y1"
+    sku     = "Y1"
   }
 
   zone_redundant = false
-  tags = var.tags
+  tags           = var.tags
 }
 
 module "storage" {
@@ -135,12 +140,12 @@ module "functionapp" {
   resource_group_name = var.resource_group_name
   resource_suffix     = var.resource_suffix
   location            = var.location
-  
+
   service_plan_id = module.serviceplan.0.service_plan.id
-  os_type = "Linux"
+  os_type         = "Linux"
   storage_account = {
     name = module.storage.0.name
-    id  = module.storage.0.id
+    id   = module.storage.0.id
   }
 
   app_settings = {
@@ -153,4 +158,16 @@ module "functionapp" {
   functions = var.patching.events.functions
 
   tags = var.tags
+}
+
+resource "azurerm_role_assignment" "update" {
+  for_each = {
+    for k, v in var.patching.events.role_assignments : k => v
+    if var.patching.enabled == true &&
+    var.patching.events.enabled == trust_policy_enabled
+  }
+
+  role_definition_name = each.value.role_definition_name
+  scope                = each.value.scope
+  principal_id         = module.functionapp.0.identity.0.principal_id
 }
