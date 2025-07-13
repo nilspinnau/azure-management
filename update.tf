@@ -111,7 +111,7 @@ module "serviceplan" {
   location            = var.location
 
   service_plan = {
-    os_type = "Linux"
+    os_type = "Windows"
     sku     = "Y1"
   }
 
