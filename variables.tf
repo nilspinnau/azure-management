@@ -311,6 +311,10 @@ variable "patching" {
         role_definition_name = string
         scope                = string
       })), {})
+      event_subscriptions = optional(map(object({
+        function_name       = string
+        included_event_types = optional(set(string), ["Microsoft.Maintenance.PostMaintenanceEvent"])
+      })), {})
       # functions = optional(map(object({
       #   name = string
       #   files = optional(map(object({

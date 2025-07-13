@@ -82,22 +82,23 @@ resource "azurerm_eventgrid_system_topic" "update" {
 }
 
 resource "azurerm_eventgrid_system_topic_event_subscription" "update" {
-  count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
+  for_each = {
+    for k, v in var.patching.events.event_subscriptions : k => v
+    if var.patching.enabled == true && 
+    var.patching.events.enabled == true
+  }
 
-  name                = "update"
+  name                = each.key
   resource_group_name = var.resource_group_name
   system_topic        = azurerm_eventgrid_system_topic.update.0.id
 
   event_delivery_schema = "CloudEventSchemaV1_0"
 
   azure_function_endpoint {
-    function_id = module.functionapp.0.id
+    function_id = "${module.functionapp.0.id}/functions/${each.value.function_name}"
   }
 
-  included_event_types = [
-    "Microsoft.Maintenance.PostMaintenanceEvent",
-    "Microsoft.Maintenance.PreMaintenanceEvent",
-  ]
+  included_event_types = each.value.included_event_types
 }
 
 
