@@ -133,12 +133,6 @@ module "storage" {
   tags = var.tags
 }
 
-resource "azurerm_role_assignment" "update_storage_blob_owner" {
-  scope                = module.storage.0.id
-  role_definition_name = "Storage Blob Data Owner"
-  principal_id         = module.functionapp.0.identity.0.principal_id
-}
-
 module "functionapp" {
   count = var.patching.enabled == true && var.patching.events.enabled == true ? 1 : 0
 
@@ -153,6 +147,7 @@ module "functionapp" {
   storage_account = {
     name = module.storage.0.name
     id   = module.storage.0.id
+    key  = module.storage.0.primary_access_key
   }
 
   app_settings = {
