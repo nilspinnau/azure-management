@@ -130,6 +130,12 @@ module "storage" {
   resource_suffix     = var.resource_suffix
   location            = var.location
 
+  account_replication_type = "LRS"
+  enable_sas_key = true
+  public_access = {
+    enabled = true
+  }
+
   tags = var.tags
 }
 
