@@ -131,7 +131,7 @@ module "storage" {
   location            = var.location
 
   account_replication_type = "LRS"
-  enable_sas_key = true
+  enable_sas_key           = true
   public_access = {
     enabled = true
   }
@@ -151,9 +151,9 @@ module "functionapp" {
   service_plan_id = module.serviceplan.0.service_plan.id
   os_type         = "Windows"
   storage_account = {
-    name = module.storage.0.name
-    id   = module.storage.0.id
-    key  = module.storage.0.primary_access_key
+    name       = module.storage.0.name
+    id         = module.storage.0.id
+    access_key = module.storage.0.primary_access_key
   }
 
   app_settings = {
