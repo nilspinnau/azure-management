@@ -174,8 +174,6 @@ module "functionapp" {
     always_on = false
   }
 
-  zip_deploy_file = var.patching.events.zip_deploy_file
-
   tags = var.tags
 }
 
