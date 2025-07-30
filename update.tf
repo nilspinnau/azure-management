@@ -156,6 +156,16 @@ module "functionapp" {
     access_key = module.storage.0.primary_access_key
   }
 
+  public_network_access_enabled                  = true
+  webdeploy_publish_basic_authentication_enabled = true
+  ftp_publish_basic_authentication_enabled       = true
+
+  auth_settings_v2 = {
+    enabled                = false
+    require_authentication = false
+    require_https          = true
+  }
+
   app_settings = {
     WEBSITE_RUN_FROM_PACKAGE       = 1
     SCM_DO_BUILD_DURING_DEPLOYMENT = true
