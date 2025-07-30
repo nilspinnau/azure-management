@@ -90,7 +90,7 @@ resource "azurerm_eventgrid_system_topic_event_subscription" "update" {
 
   name                = each.key
   resource_group_name = var.resource_group_name
-  system_topic        = azurerm_eventgrid_system_topic.update.0.id
+  system_topic        = azurerm_eventgrid_system_topic.update.0.name
 
   event_delivery_schema = "CloudEventSchemaV1_0"
 
