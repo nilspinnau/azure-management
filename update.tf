@@ -112,7 +112,7 @@ module "serviceplan" {
   location            = var.location
 
   service_plan = {
-    os_type = "Windows"
+    os_type = "Linux"
     sku     = "Y1"
   }
 
@@ -149,7 +149,7 @@ module "functionapp" {
   location            = var.location
 
   service_plan_id = module.serviceplan.0.service_plan.id
-  os_type         = "Windows"
+  os_type         = "Linux"
   storage_account = {
     name       = module.storage.0.name
     id         = module.storage.0.id
